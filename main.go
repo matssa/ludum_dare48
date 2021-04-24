@@ -144,7 +144,6 @@ func (g *Game) Update() error {
 		}
 
 		execueMovement(g)
-		// fmt.Printf("key pressed w a s d space: %v, %v, %v, %v, %v", myKeys[0].isPressed, myKeys[1].isPressed, myKeys[2].isPressed, myKeys[3].isPressed, myKeys[4].isPressed)
 
 	default:
 		g.gameMode = play
@@ -158,7 +157,7 @@ func (g *Game) drawCharacter(screen *ebiten.Image) {
 	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	op.Filter = ebiten.FilterLinear
-	if g.count == 5 {
+	if g.count >= 5 {
 		g.count = 0
 		animatedSprite.NextFrame()
 	}
