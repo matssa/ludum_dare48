@@ -32,7 +32,7 @@ func initWorldImg() {
 	tilesImage = ebiten.NewImageFromImage(tilesImgRaw)
 }
 
-func renderWorld(g *Game, screen *ebiten.Image) {
+func (g *Game) drawWorld() {
 	for _, l := range g.layers {
 		for i, t := range l {
 			op := &ebiten.DrawImageOptions{}
@@ -43,7 +43,6 @@ func renderWorld(g *Game, screen *ebiten.Image) {
 			g.world.DrawImage(tilesImage.SubImage(image.Rect(sx, sy, sx+tileSize, sy+tileSize)).(*ebiten.Image), op)
 		}
 	}
-	g.camera.Render(g.world, screen)
 }
 
 func buildWorld(g *Game) {

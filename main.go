@@ -84,9 +84,9 @@ type Game struct {
 	world  *ebiten.Image
 	camera Camera
 
-	// Camera position
-	cameraX int
-	cameraY int
+	// Character position
+	characterX int
+	characterY int
 }
 
 func init() {
@@ -102,8 +102,8 @@ func init() {
 func (g *Game) init() {
 	g.player.x16 = 0
 	g.player.y16 = 100 * 16
-	g.cameraX = -240
-	g.cameraY = 0
+	g.characterX = -240
+	g.characterY = 0
 }
 
 func newGame() *Game {
@@ -161,29 +161,30 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) drawCharacter(screen *ebiten.Image) {
+func (g *Game) drawCharacter() {
 	op := &ebiten.DrawImageOptions{}
 	if g.player.looksLeft {
 		op.GeoM.Scale(-1, 1)
 		op.GeoM.Translate(float64(animatedSprite.frameWidth), 0)
 	}
-	op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.cameraX), float64(g.player.y16/16.0)-float64(g.cameraY))
-	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
-	op.GeoM.Translate(screenWidth/2, screenHeight/2)
-	op.Filter = ebiten.FilterLinear
+        op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.characterX), float64(g.player.y16/16.0)-float64(g.characterY))
+ 	op.Filter = ebiten.FilterLinear
 	if g.player.count >= 5 {
 		g.player.count = 0
 		animatedSprite.NextFrame()
 	}
-	screen.DrawImage(animatedSprite.GetCurrFrame(), op)
+        g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	renderWorld(g, screen)
+	g.drawWorld()
+        g.drawCharacter()
+
+	g.camera.Render(g.world, screen)
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == 1 {
-		g.drawCharacter(screen)
+		// g.drawCharacter()
 		DrawOverlay(screen, 5)
 	}
 
