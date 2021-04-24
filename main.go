@@ -64,19 +64,25 @@ type keyboardKey struct {
 	key       ebiten.Key
 }
 
-type Game struct {
-	count    int
-	gameMode int
-
-	layers [][]int
-	world  *ebiten.Image
-	camera Camera
+type Player struct {
+	count     int
+	hasTurned bool
+	looksLeft bool
 
 	// Character position
 	x16  int
 	y16  int
 	vy16 int
 	vx16 int
+}
+
+type Game struct {
+	player   Player
+	gameMode int
+
+	layers [][]int
+	world  *ebiten.Image
+	camera Camera
 
 	// Camera position
 	cameraX int
@@ -84,13 +90,6 @@ type Game struct {
 }
 
 func init() {
-	w := keyboardKey{false, ebiten.KeyW}
-	a := keyboardKey{false, ebiten.KeyA}
-	s := keyboardKey{false, ebiten.KeyS}
-	d := keyboardKey{false, ebiten.KeyD}
-	space := keyboardKey{false, ebiten.KeySpace}
-	myKeys = []keyboardKey{w, a, s, d, space}
-
 	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_png))
 	if err != nil {
 		log.Fatal(err)
@@ -101,8 +100,8 @@ func init() {
 }
 
 func (g *Game) init() {
-	g.x16 = 0
-	g.y16 = 100 * 16
+	g.player.x16 = 0
+	g.player.y16 = 100 * 16
 	g.cameraX = -240
 	g.cameraY = 0
 }
@@ -113,33 +112,33 @@ func newGame() *Game {
 	return g
 }
 
-func jump(g *Game) {
-	g.vy16 = -96
+func (p *Player) jump() {
+	p.vy16 = -60
 }
 
-func execueMovement(g *Game) {
-	for i, key := range myKeys {
-		if inpututil.IsKeyJustPressed(key.key) {
-			myKeys[i].isPressed = true
-			if key.key == ebiten.KeyW {
-				jump(g)
-			}
+func (p *Player) executeMovement() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
+		p.jump()
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		if !p.looksLeft {
+			p.looksLeft = true
+			p.hasTurned = true
 		}
-		if inpututil.IsKeyJustReleased(key.key) {
-			myKeys[i].isPressed = false
+		p.vx16 = -40
+	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
+		if p.looksLeft {
+			p.looksLeft = false
+			p.hasTurned = true
 		}
+		p.vx16 = 40
+	} else {
+		p.vx16 = 0
 	}
 
-	if myKeys[1].isPressed {
-		g.vx16 = -40
-	} else if myKeys[3].isPressed {
-		g.vx16 = 40
-	} else {
-		g.vx16 = 0
-	}
-	g.y16 += g.vy16
-	g.x16 += g.vx16
-	g.count++
+	p.y16 += p.vy16
+	p.x16 += p.vx16
+	p.count++
 }
 
 func (g *Game) Update() error {
@@ -149,12 +148,12 @@ func (g *Game) Update() error {
 	switch g.gameMode {
 	case play:
 		// Gravity
-		g.vy16 += 4
-		if g.vy16 > 96 {
-			g.vy16 = 96
+		g.player.vy16 += 4
+		if g.player.vy16 > 96 {
+			g.player.vy16 = 96
 		}
 
-		execueMovement(g)
+		g.player.executeMovement()
 
 	default:
 		g.gameMode = play
@@ -164,12 +163,16 @@ func (g *Game) Update() error {
 
 func (g *Game) drawCharacter(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(g.x16/16.0)-float64(g.cameraX), float64(g.y16/16.0)-float64(g.cameraY))
+	if g.player.looksLeft {
+		op.GeoM.Scale(-1, 1)
+		op.GeoM.Translate(float64(animatedSprite.frameWidth), 0)
+	}
+	op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.cameraX), float64(g.player.y16/16.0)-float64(g.cameraY))
 	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	op.Filter = ebiten.FilterLinear
-	if g.count >= 5 {
-		g.count = 0
+	if g.player.count >= 5 {
+		g.player.count = 0
 		animatedSprite.NextFrame()
 	}
 	screen.DrawImage(animatedSprite.GetCurrFrame(), op)
@@ -193,6 +196,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
+		player: Player{count: 0, hasTurned: false},
 	}
 	buildWorld(g)
 
