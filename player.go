@@ -30,6 +30,7 @@ func (p *Player) moveLeft() {
 	}
 	p.vx16 = -40
 	p.restingCount = 0
+	p.isResting = false
 }
 
 func (p *Player) moveRight() {
@@ -39,6 +40,7 @@ func (p *Player) moveRight() {
 	}
 	p.vx16 = 40
 	p.restingCount = 0
+	p.isResting = false
 }
 
 func (p *Player) rest() {

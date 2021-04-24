@@ -17,13 +17,11 @@
 package main
 
 import (
-	"image"
 	_ "image/png"
 	"log"
 
 	"golang.org/x/image/math/f64"
 
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -42,13 +40,6 @@ const (
 	gameOver = 3
 )
 
-var (
-	runnerImage        *ebiten.Image
-	idleImage          *ebiten.Image
-	animatedSprite     *AnimatedSprite
-	animatedIdleSprite *AnimatedSprite
-)
-
 type Game struct {
 	player   Player
 	gameMode int
@@ -63,24 +54,7 @@ type Game struct {
 }
 
 func init() {
-	res, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// img, _, err := image.Decode(bytes.NewReader(images.Runner_png))
-	img, _, err := image.Decode(res)
-	if err != nil {
-		log.Fatal(err)
-	}
-	runnerImage = ebiten.NewImageFromImage(img)
-	animatedSprite = NewAnimatedSprite(
-		0,
-		0,
-		32,
-		32,
-		5,
-		runnerImage)
-
+	initAnimation()
 	initWorldImg()
 }
 
@@ -125,11 +99,19 @@ func (g *Game) drawCharacter() {
 	}
 	op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.characterX), float64(g.player.y16/16.0)-float64(g.characterY))
 	op.Filter = ebiten.FilterLinear
-	if g.player.count >= 5 {
-		g.player.count = 0
-		animatedSprite.NextFrame()
+	if g.player.isResting {
+		g.world.DrawImage(animatedIdleSprite.GetCurrFrame(), op)
+		if g.player.restingCount >= 5 {
+			g.player.restingCount = 0
+			animatedIdleSprite.NextFrame()
+		}
+	} else {
+		g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
+		if g.player.count >= 5 {
+			g.player.count = 0
+			animatedSprite.NextFrame()
+		}
 	}
-	g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -139,7 +121,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.camera.Render(g.world, screen)
 
 	// sx, sy := frameOX+i*frameWidth, 0
-	if g.gameMode == 1 {
+	if g.gameMode == play {
 		DrawOverlay(screen, 5)
 	}
 
