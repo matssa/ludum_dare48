@@ -1,4 +1,4 @@
-module github.com/rubensseva/mytest
+module github.com/matssa/ludum_dare48
 
 go 1.16
 
