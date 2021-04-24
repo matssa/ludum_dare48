@@ -200,7 +200,7 @@ func main() {
 	}
 	buildWorld(g)
 
-	res, err := ebitenutil.OpenFile("./Squirrel-Sheet.png")
+	res, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
 	if err != nil {
 		log.Fatal(err)
 	}
