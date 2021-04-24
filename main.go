@@ -22,6 +22,8 @@ import (
 	_ "image/png"
 	"log"
 
+	"golang.org/x/image/math/f64"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	resources "github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
@@ -66,6 +68,10 @@ type Game struct {
 	count    int
 	gameMode int
 
+	layers [][]int
+	world  *ebiten.Image
+	camera Camera
+
 	// Character position
 	x16  int
 	y16  int
@@ -90,6 +96,8 @@ func init() {
 		log.Fatal(err)
 	}
 	gopherImage = ebiten.NewImageFromImage(img)
+
+	initWorldImg()
 }
 
 func (g *Game) init() {
@@ -135,6 +143,9 @@ func execueMovement(g *Game) {
 }
 
 func (g *Game) Update() error {
+
+	controlCamera(g)
+
 	switch g.gameMode {
 	case play:
 		// Gravity
@@ -165,10 +176,13 @@ func (g *Game) drawCharacter(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	renderWorld(g, screen)
+
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == 1 {
 		g.drawCharacter(screen)
 	}
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -176,6 +190,11 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
+	g := &Game{
+		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
+	}
+	buildWorld(g)
+
 	res, err := ebitenutil.OpenFile("./Squirrel-Sheet.png")
 	if err != nil {
 		log.Fatal(err)
@@ -198,7 +217,7 @@ func main() {
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
 	newGame()
 
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
 }
