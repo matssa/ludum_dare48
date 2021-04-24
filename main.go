@@ -17,17 +17,14 @@
 package main
 
 import (
-	"bytes"
 	"image"
 	_ "image/png"
 	"log"
 
 	"golang.org/x/image/math/f64"
 
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	resources "github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -46,35 +43,11 @@ const (
 )
 
 var (
-	runnerImage    *ebiten.Image
-	animatedSprite *AnimatedSprite
-	keys           = []ebiten.Key{
-		ebiten.KeyA,
-		ebiten.KeyW,
-		ebiten.KeyS,
-		ebiten.KeyD,
-		ebiten.KeySpace,
-	}
-	myKeys      = []keyboardKey{}
-	gopherImage *ebiten.Image
+	runnerImage        *ebiten.Image
+	idleImage          *ebiten.Image
+	animatedSprite     *AnimatedSprite
+	animatedIdleSprite *AnimatedSprite
 )
-
-type keyboardKey struct {
-	isPressed bool
-	key       ebiten.Key
-}
-
-type Player struct {
-	count     int
-	hasTurned bool
-	looksLeft bool
-
-	// Character position
-	x16  int
-	y16  int
-	vy16 int
-	vx16 int
-}
 
 type Game struct {
 	player   Player
@@ -90,11 +63,23 @@ type Game struct {
 }
 
 func init() {
-	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_png))
+	res, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
 	if err != nil {
 		log.Fatal(err)
 	}
-	gopherImage = ebiten.NewImageFromImage(img)
+	// img, _, err := image.Decode(bytes.NewReader(images.Runner_png))
+	img, _, err := image.Decode(res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	runnerImage = ebiten.NewImageFromImage(img)
+	animatedSprite = NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		5,
+		runnerImage)
 
 	initWorldImg()
 }
@@ -110,35 +95,6 @@ func newGame() *Game {
 	g := &Game{}
 	g.init()
 	return g
-}
-
-func (p *Player) jump() {
-	p.vy16 = -60
-}
-
-func (p *Player) executeMovement() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		p.jump()
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		if !p.looksLeft {
-			p.looksLeft = true
-			p.hasTurned = true
-		}
-		p.vx16 = -40
-	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
-		if p.looksLeft {
-			p.looksLeft = false
-			p.hasTurned = true
-		}
-		p.vx16 = 40
-	} else {
-		p.vx16 = 0
-	}
-
-	p.y16 += p.vy16
-	p.x16 += p.vx16
-	p.count++
 }
 
 func (g *Game) Update() error {
@@ -184,7 +140,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == 1 {
-		// g.drawCharacter()
 		DrawOverlay(screen, 5)
 	}
 
@@ -200,24 +155,6 @@ func main() {
 		player: Player{count: 0, hasTurned: false},
 	}
 	buildWorld(g)
-
-	res, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// img, _, err := image.Decode(bytes.NewReader(images.Runner_png))
-	img, _, err := image.Decode(res)
-	if err != nil {
-		log.Fatal(err)
-	}
-	runnerImage = ebiten.NewImageFromImage(img)
-	animatedSprite = NewAnimatedSprite(
-		0,
-		0,
-		32,
-		32,
-		5,
-		runnerImage)
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
