@@ -17,9 +17,9 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
-	"fmt"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
@@ -30,9 +30,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
-
-const maxHealth = 10;
-
+const maxHealth = 10
 
 var (
 	mplusNormalFont font.Face
@@ -56,28 +54,25 @@ func init() {
 	}
 }
 
-
 func createHealthString(health int, maxHealth int) string {
-	return fmt.Sprintf("health %d / %d", health, maxHealth);
+	return fmt.Sprintf("health %d / %d", health, maxHealth)
 }
-
 
 func DrawOverlay(screen *ebiten.Image, health int) {
 	transparentGray := color.RGBA{0x80, 0x80, 0x80, 0x55}
 	{
 		const x, y = 10, 20
-		myText := createHealthString(health, maxHealth);
+		myText := createHealthString(health, maxHealth)
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
 		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
 	}
 	{
 		_, height := screen.Size()
-		x, y := 20, height - 10
+		x, y := 20, height-10
 		myText := "press w to jump."
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
 		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
 	}
 }
-

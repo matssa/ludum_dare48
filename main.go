@@ -167,18 +167,18 @@ func (g *Game) drawCharacter() {
 		op.GeoM.Scale(-1, 1)
 		op.GeoM.Translate(float64(animatedSprite.frameWidth), 0)
 	}
-        op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.characterX), float64(g.player.y16/16.0)-float64(g.characterY))
- 	op.Filter = ebiten.FilterLinear
+	op.GeoM.Translate(float64(g.player.x16/16.0)-float64(g.characterX), float64(g.player.y16/16.0)-float64(g.characterY))
+	op.Filter = ebiten.FilterLinear
 	if g.player.count >= 5 {
 		g.player.count = 0
 		animatedSprite.NextFrame()
 	}
-        g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
+	g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawWorld()
-        g.drawCharacter()
+	g.drawCharacter()
 
 	g.camera.Render(g.world, screen)
 
