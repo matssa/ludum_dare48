@@ -17,17 +17,12 @@
 package main
 
 import (
-	"bytes"
-	"image"
 	_ "image/png"
 	"log"
 
 	"golang.org/x/image/math/f64"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	resources "github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -46,36 +41,8 @@ const (
 )
 
 var (
-	runnerImage    *ebiten.Image
-	animatedSprite *AnimatedSprite
-	keys           = []ebiten.Key{
-		ebiten.KeyA,
-		ebiten.KeyW,
-		ebiten.KeyS,
-		ebiten.KeyD,
-		ebiten.KeySpace,
-	}
-	myKeys      = []keyboardKey{}
-	gopherImage *ebiten.Image
 	tiles = make([]*Tile, 0, 0)
 )
-
-type keyboardKey struct {
-	isPressed bool
-	key       ebiten.Key
-}
-
-type Player struct {
-	count     int
-	hasTurned bool
-	looksLeft bool
-
-	// Character position
-	x16  int
-	y16  int
-	vy16 float64
-	vx16 float64
-}
 
 type Game struct {
 	player   Player
@@ -88,12 +55,7 @@ type Game struct {
 }
 
 func init() {
-	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_png))
-	if err != nil {
-		log.Fatal(err)
-	}
-	gopherImage = ebiten.NewImageFromImage(img)
-
+	initAnimation()
 	initWorldImg()
 }
 
@@ -106,41 +68,6 @@ func newGame() *Game {
 	g := &Game{}
 	g.init()
 	return g
-}
-
-func (p *Player) jump() {
-	p.vy16 = -6
-}
-
-func (p *Player) executeMovement() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		p.jump()
-	} else {
-	    for _, tile := range tiles {
-		    if (tile.PlayerCollide(p)) {
-			    p.vy16 = 0;
-	            }
-	    }
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		if !p.looksLeft {
-			p.looksLeft = true
-			p.hasTurned = true
-		}
-		p.vx16 = -5
-	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
-		if p.looksLeft {
-			p.looksLeft = false
-			p.hasTurned = true
-		}
-		p.vx16 = 5
-	} else {
-		p.vx16 = 0
-	}
-
-	p.y16 += int(p.vy16)
-	p.x16 += int(p.vx16)
-	p.count++
 }
 
 func (g *Game) Update() error {
@@ -171,11 +98,19 @@ func (g *Game) drawCharacter() {
 	}
 	op.GeoM.Translate(float64(g.player.x16), float64(g.player.y16))
 	op.Filter = ebiten.FilterLinear
-	if g.player.count >= 5 {
-		g.player.count = 0
-		animatedSprite.NextFrame()
+	if g.player.isResting {
+		g.world.DrawImage(animatedIdleSprite.GetCurrFrame(), op)
+		if g.player.restingCount >= 10 {
+			g.player.restingCount = 0
+			animatedIdleSprite.NextFrame()
+		}
+	} else {
+		g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
+		if g.player.count >= 5 {
+			g.player.count = 0
+			animatedSprite.NextFrame()
+		}
 	}
-	g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -185,8 +120,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.camera.Render(g.world, screen)
 
 	// sx, sy := frameOX+i*frameWidth, 0
-	if g.gameMode == 1 {
-		// g.drawCharacter()
+	if g.gameMode == play {
 		DrawOverlay(screen, 5)
 		for _, tile := range tiles {
 			tile.DrawTile(screen)
@@ -205,25 +139,6 @@ func main() {
 		player: Player{count: 0, hasTurned: false},
 	}
 	buildWorld(g)
-
-	res, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// img, _, err := image.Decode(bytes.NewReader(images.Runner_png))
-	img, _, err := image.Decode(res)
-	if err != nil {
-		log.Fatal(err)
-	}
-	runnerImage = ebiten.NewImageFromImage(img)
-	animatedSprite = NewAnimatedSprite(
-		0,
-		0,
-		32,
-		32,
-		5,
-		runnerImage)
-
 
 
 	// Create some tiles

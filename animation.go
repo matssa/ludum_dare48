@@ -3,8 +3,17 @@ package main
 import (
 	"image"
 	_ "image/png"
+	"log"
 
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2"
+)
+
+var (
+	runnerImage        *ebiten.Image
+	idleImage          *ebiten.Image
+	animatedSprite     *AnimatedSprite
+	animatedIdleSprite *AnimatedSprite
 )
 
 type AnimatedSprite struct {
@@ -16,6 +25,41 @@ type AnimatedSprite struct {
 
 	SpriteSheet  *ebiten.Image
 	currFrameNum int
+}
+
+func initAnimation() {
+	running, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	idle, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-idle.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	img, _, err := image.Decode(running)
+	if err != nil {
+		log.Fatal(err)
+	}
+	imgIdle, _, err := image.Decode(idle)
+	if err != nil {
+		log.Fatal(err)
+	}
+	runnerImage = ebiten.NewImageFromImage(img)
+	idleImage = ebiten.NewImageFromImage(imgIdle)
+	animatedSprite = NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		5,
+		runnerImage)
+	animatedIdleSprite = NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		3,
+		idleImage)
 }
 
 // frameOS and frameOY should probably be 0
