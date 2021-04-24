@@ -181,6 +181,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == 1 {
 		g.drawCharacter(screen)
+		DrawOverlay(screen, 5)
 	}
 
 }
