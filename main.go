@@ -65,7 +65,7 @@ func init() {
 
 func (g *Game) Update() error {
 
-	controlCamera(g)
+	g.camera.update()
 
 	switch g.gameMode {
 	case play:
@@ -97,6 +97,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Render()
 	g.camera.Render(g.world, screen)
 
+        if g.camera.drawDebug {
+                g.camera.renderCameraDebug(screen)
+        }
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
