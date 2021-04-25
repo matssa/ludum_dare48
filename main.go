@@ -45,6 +45,7 @@ const (
 
 var (
 	tiles = make([]*Tile, 0, 0)
+	runClouds = false
 )
 
 type Game struct {
@@ -65,6 +66,9 @@ func init() {
 }
 
 func (g *Game) Update() error {
+	if ebiten.IsKeyPressed(ebiten.KeyO) {
+		runClouds = !runClouds
+	}
 
 	g.camera.update(g)
 
@@ -78,7 +82,9 @@ func (g *Game) Update() error {
 		g.gameMode = play
 	}
 
-	g.ominousClouds.UpdateClouds()
+	if runClouds {
+		g.ominousClouds.UpdateClouds()
+	}
 	return nil
 }
 
@@ -95,7 +101,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			tile.DrawTile(g.world)
 		}
 	}
-	g.ominousClouds.DrawClouds(g.world)
+
+	if runClouds {
+		g.ominousClouds.DrawClouds(g.world)
+	}
 
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
