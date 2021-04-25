@@ -138,16 +138,15 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
-
 func main() {
 	g := &Game{
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
 		player: Player{health: 100, count: 0, hasTurned: false, x16: 500, y16: 500},
 	}
-	g.createEnemies(2)
+	g.createEnemies(20)
 	buildWorld(g)
 
-	tileLines := createMap();
+	tileLines := createMap()
 	//fmt.Printf("%v\n", tileLines)
 	for _, line := range tileLines {
 		for _, tile := range line {
@@ -155,8 +154,6 @@ func main() {
 			tiles = append(tiles, tile)
 		}
 	}
-
-
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")

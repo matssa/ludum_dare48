@@ -43,7 +43,7 @@ type Enemy struct {
 
 func spawnPosition(g *Game) (int, int) {
 	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(tileSize * tileXNum), 20
+	return rand.Intn(worldWidth), 20
 }
 
 func newEnemy(s float64, a int, b int, g *Game) *Enemy {
@@ -148,7 +148,7 @@ func (e *Enemy) canChangeAction() bool {
 
 func (e *Enemy) shouldShoot(p Player) bool {
 	aggr := 16
-
+	isCloseEnough := e.x16-p.x16 < 400
 	isInY := e.y16+aggr >= p.y16 && e.y16-aggr <= p.y16+32
 	var isOnCorrectSide bool
 	if e.looksLeft {
@@ -156,45 +156,45 @@ func (e *Enemy) shouldShoot(p Player) bool {
 	} else {
 		isOnCorrectSide = e.x16 < p.x16
 	}
-	return isInY && isOnCorrectSide
+	return isInY && isOnCorrectSide && isCloseEnough
 }
 
 func (g *Game) UpdateEnemies() {
-	for i := range g.enemies {
-		if (!g.enemies[i].isAlive) {
-			continue;
+	for _, e := range g.enemies {
+		if !e.isAlive {
+			continue
 		}
 		// Gravity
-		g.enemies[i].vy16 += gravity
-		if g.enemies[i].vy16 > maxVelocityY {
-			g.enemies[i].vy16 = maxVelocityY
+		e.vy16 += gravity
+		if e.vy16 > maxVelocityY {
+			e.vy16 = maxVelocityY
 		}
 
 		for _, tile := range tiles {
-			if tile.EnemyCollide(g.enemies[i]) {
-				if g.enemies[i].vy16 >= 0 {
-					g.enemies[i].vy16 = 0
+			if tile.EnemyCollide(e) {
+				if e.vy16 >= 0 {
+					e.vy16 = 0
 				}
-				g.enemies[i].y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
+				e.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
-		if g.enemies[i].shouldShoot(g.player) {
-			g.enemies[i].shoot()
+		if e.shouldShoot(g.player) {
+			e.shoot()
 		} else {
-			if g.enemies[i].canChangeAction() {
-				g.enemies[i].changeAction()
+			if e.canChangeAction() {
+				e.changeAction()
 			}
 		}
-		g.enemies[i].y16 += int(g.enemies[i].vy16)
-		g.enemies[i].x16 += int(g.enemies[i].vx16)
-		g.enemies[i].count++
+		e.y16 += int(e.vy16)
+		e.x16 += int(e.vx16)
+		e.count++
 	}
 }
 
 func (g *Game) drawEnemies() {
-	for i, e := range g.enemies {
-		if (!g.enemies[i].isAlive) {
-			continue;
+	for _, e := range g.enemies {
+		if !e.isAlive {
+			continue
 		}
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(e.size, e.size)
@@ -210,8 +210,7 @@ func (g *Game) drawEnemies() {
 				e.restingCount = 0
 				e.animatedIdleSprite.NextFrame()
 			}
-		} else if g.enemies[i].isShooting {
-			e := g.enemies[i]
+		} else if e.isShooting {
 			g.world.DrawImage(e.animatedShootingSprite.GetCurrFrame(), op)
 			if e.shootFrameCount >= 6 {
 				g.CreateBullet(e.x16, e.y16+4, e.looksLeft)
