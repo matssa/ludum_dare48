@@ -93,6 +93,8 @@ func (g *Game) Update() error {
 
 	case gameOver:
 		fmt.Printf("Game Over! :(")
+		g.player.health = 100
+		g.gameMode = play
 
 	default:
 		g.gameMode = play
