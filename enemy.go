@@ -106,18 +106,22 @@ func (e *Enemy) rest() {
 func (e *Enemy) changeAction() {
 	rand.Seed(time.Now().UnixNano())
 	actionType := rand.Intn(4)
-	moveDuration := rand.Float32() * 4
-	e.changeActionAfter = time.Now().Add(time.Second * time.Duration(moveDuration))
+	moveDuration := float32(0)
 	switch actionType {
 	case moveLeft:
+		moveDuration = rand.Float32() * 2
 		e.moveLeft()
 	case moveRight:
+		moveDuration = rand.Float32() * 2
 		e.moveRight()
 	case idle:
+		moveDuration = rand.Float32() * 3
 		e.rest()
 	default:
+		moveDuration = rand.Float32() * 2
 		e.jump()
 	}
+	e.changeActionAfter = time.Now().Add(time.Second * time.Duration(moveDuration))
 }
 
 func (e *Enemy) canChangeAction() bool {
