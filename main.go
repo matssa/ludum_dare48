@@ -120,15 +120,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawWorld()
 	g.drawCharacter()
 
-	g.camera.Render(g.world, screen)
-
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
-		DrawOverlay(screen, 5)
+		DrawOverlay(g.world, 5)
 		for _, tile := range tiles {
-			tile.DrawTile(screen)
+			tile.DrawTile(g.world)
 		}
 	}
+
+        // Anything relative to world must be drawn on g.world before calling
+        // Render()
+	g.camera.Render(g.world, screen)
 
 }
 
