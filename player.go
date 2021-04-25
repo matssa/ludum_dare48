@@ -12,6 +12,8 @@ type Player struct {
 	count        int
 	restingCount int
 	isResting    bool
+	isAttacking  bool
+	attackFramesCount int
 	hasTurned    bool
 	looksLeft    bool
 	canJump      bool
@@ -103,7 +105,7 @@ func (p *Player) executeMovement() {
 		p.moveLeft()
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
 		p.moveRight()
-	} else {
+	} else if !p.isAttacking {
 		p.rest()
 	}
 	p.y16 += int(p.vy16)
@@ -142,21 +144,33 @@ func (g *Game) drawCharacter() {
 	op := &ebiten.DrawImageOptions{}
 	if g.player.looksLeft {
 		op.GeoM.Scale(-1, 1)
-		op.GeoM.Translate(float64(animatedSprite.frameWidth), 0)
+		op.GeoM.Translate(float64(playerSprite.frameWidth), 0)
 	}
 	op.GeoM.Translate(float64(g.player.x16), float64(g.player.y16))
 	op.Filter = ebiten.FilterLinear
 	if g.player.isResting {
-		g.world.DrawImage(animatedIdleSprite.GetCurrFrame(), op)
+		g.world.DrawImage(playerIdleSprite.GetCurrFrame(), op)
 		if g.player.restingCount >= 10 {
 			g.player.restingCount = 0
-			animatedIdleSprite.NextFrame()
+			playerIdleSprite.NextFrame()
+		}
+	} else if g.player.isAttacking {
+		g.world.DrawImage(playerAttackSprite.GetCurrFrame(), op)
+		if g.player.attackFramesCount >= 6 {
+			g.player.isAttacking = false
+			g.player.isResting = true
+			g.player.attackFramesCount = 0;
+			playerAttackSprite.ResetSprite()
+		} else if g.player.count >= 5 {
+			g.player.attackFramesCount += 1;
+			g.player.count = 0
+			playerAttackSprite.NextFrame()
 		}
 	} else {
-		g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
+		g.world.DrawImage(playerSprite.GetCurrFrame(), op)
 		if g.player.count >= 5 {
 			g.player.count = 0
-			animatedSprite.NextFrame()
+			playerSprite.NextFrame()
 		}
 	}
 }

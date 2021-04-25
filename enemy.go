@@ -12,6 +12,7 @@ const (
 	moveLeft  = 1
 	moveRight = 2
 	idle      = 3
+	shooting  = 4
 )
 
 type Enemy struct {
@@ -19,16 +20,19 @@ type Enemy struct {
 	restingCount int
 	looksLeft    bool
 	isResting    bool
+	isShooting   bool
 
 	// Enemy stuff
-	isAlive            bool
-	size               float64
-	ability            int
-	behaviour          int
-	animatedSprite     *AnimatedSprite
-	animatedIdleSprite *AnimatedSprite
-	action             int
-	changeActionAfter  time.Time
+	isAlive                bool
+	size                   float64
+	ability                int
+	behaviour              int
+	animatedSprite         *AnimatedSprite
+	animatedIdleSprite     *AnimatedSprite
+	animatedShootingSprite *AnimatedSprite
+	shootFrameCount        int
+	action                 int
+	changeActionAfter      time.Time
 
 	// Enemy position
 	x16  int
@@ -57,15 +61,23 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 		chipmunkSize,
 		3,
 		idleEnemyImage)
+	animatedShootingSprite := NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		6,
+		shootingEnemyImage)
 	x, y := spawnPosition(g)
 	return &Enemy{
 		isAlive: true,
 		size:    s,
 		ability: a, behaviour: b,
-		animatedSprite:     animatedSprite,
-		animatedIdleSprite: animatedIdleSprite,
-		x16:                x,
-		y16:                y,
+		animatedSprite:         animatedSprite,
+		animatedIdleSprite:     animatedIdleSprite,
+		animatedShootingSprite: animatedShootingSprite,
+		x16:                    x,
+		y16:                    y,
 	}
 }
 
@@ -103,6 +115,12 @@ func (e *Enemy) rest() {
 	e.isResting = true
 }
 
+func (e *Enemy) shoot() {
+	e.vx16 = 0
+	e.isShooting = true
+	e.isResting = false
+}
+
 func (e *Enemy) changeAction() {
 	rand.Seed(time.Now().UnixNano())
 	actionType := rand.Intn(4)
@@ -128,33 +146,50 @@ func (e *Enemy) canChangeAction() bool {
 	return time.Now().After(e.changeActionAfter)
 }
 
-func (g *Game) executeEnemyMovement() {
-	for _, e := range g.enemies {
+func (e *Enemy) shouldShoot(p Player) bool {
+	aggr := 16
+
+	isInY := e.y16+aggr >= p.y16 && e.y16-aggr <= p.y16+32
+	var isOnCorrectSide bool
+	if e.looksLeft {
+		isOnCorrectSide = e.x16 > p.x16
+	} else {
+		isOnCorrectSide = e.x16 < p.x16
+	}
+	return isInY && isOnCorrectSide
+}
+
+func (g *Game) UpdateEnemies() {
+	for i := range g.enemies {
 		// Gravity
-		e.vy16 += gravity
-		if e.vy16 > maxVelocityY {
-			e.vy16 = maxVelocityY
+		g.enemies[i].vy16 += gravity
+		if g.enemies[i].vy16 > maxVelocityY {
+			g.enemies[i].vy16 = maxVelocityY
 		}
 
 		for _, tile := range tiles {
-			if tile.EnemyCollide(e) {
-				if e.vy16 >= 0 {
-					e.vy16 = 0
+			if tile.EnemyCollide(g.enemies[i]) {
+				if g.enemies[i].vy16 >= 0 {
+					g.enemies[i].vy16 = 0
 				}
-				e.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
+				g.enemies[i].y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
-		if e.canChangeAction() {
-			e.changeAction()
+		if g.enemies[i].shouldShoot(g.player) {
+			g.enemies[i].shoot()
+		} else {
+			if g.enemies[i].canChangeAction() {
+				g.enemies[i].changeAction()
+			}
 		}
-		e.y16 += int(e.vy16)
-		e.x16 += int(e.vx16)
-		e.count++
+		g.enemies[i].y16 += int(g.enemies[i].vy16)
+		g.enemies[i].x16 += int(g.enemies[i].vx16)
+		g.enemies[i].count++
 	}
 }
 
 func (g *Game) drawEnemies() {
-	for _, e := range g.enemies {
+	for i, e := range g.enemies {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(e.size, e.size)
 		if e.looksLeft {
@@ -169,6 +204,21 @@ func (g *Game) drawEnemies() {
 				e.restingCount = 0
 				e.animatedIdleSprite.NextFrame()
 			}
+		} else if g.enemies[i].isShooting {
+			e := g.enemies[i]
+			g.world.DrawImage(e.animatedShootingSprite.GetCurrFrame(), op)
+			if e.shootFrameCount >= 6 {
+				g.CreateBullet(e.x16, e.y16+4, e.looksLeft)
+				e.isShooting = false
+				e.changeAction()
+				e.shootFrameCount = 0
+				e.animatedShootingSprite.ResetSprite()
+			} else if e.count >= 5 {
+				e.shootFrameCount += 1
+				e.count = 0
+				e.animatedShootingSprite.NextFrame()
+			}
+
 		} else {
 			g.world.DrawImage(e.animatedSprite.GetCurrFrame(), op)
 			if e.count >= 5 {

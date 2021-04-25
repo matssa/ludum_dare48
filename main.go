@@ -52,9 +52,10 @@ var (
 )
 
 type Game struct {
-	player   Player
-	enemies  []*Enemy
-	gameMode int
+	player       Player
+	enemies      []*Enemy
+	enemyBullets []*EnemyBullet
+	gameMode     int
 
 	layers        [][]int
 	world         *ebiten.Image
@@ -78,13 +79,19 @@ func (g *Game) Update() error {
 		g.ominousClouds.StopClouds()
 	}
 
+	if ebiten.IsKeyPressed(ebiten.KeyY) {
+		g.player.isResting = false
+		g.player.isAttacking = true
+	}
+
 	g.camera.update(g)
 
 	switch g.gameMode {
 	case play:
 
 		g.player.executeMovement()
-		g.executeEnemyMovement()
+		g.UpdateEnemies()
+		g.UpdateBullets()
 		if g.isPlayerHit() {
 			if g.player.health <= 0 {
 				g.gameMode = gameOver
@@ -110,6 +117,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawWorld()
 	g.drawCharacter()
 	g.drawEnemies()
+	g.DrawBullets()
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
@@ -152,7 +160,7 @@ func main() {
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
 		posx += TILE_SIZE
 	}
