@@ -78,12 +78,15 @@ func (p *Player) executeMovement() {
 		for _, tile := range tiles {
 			if tile.PlayerCollide(p) {
 				p.canJump = true
-				p.vy16 = 0
 				if ebiten.IsKeyPressed(ebiten.KeyS) {
 					p.isDigging = true
 					p.dig()
 				} else {
 					p.isDigging = false
+					if p.vy16 >= 0 {
+						p.vy16 = 0
+					}
+					p.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 				}
 			}
 		}

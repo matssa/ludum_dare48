@@ -66,9 +66,9 @@ func (t Tile) DrawTile(screen *ebiten.Image) {
 }
 
 func (tile Tile) PlayerCollide(p *Player) bool {
-		    isInX1 := p.x16 >= tile.posx && p.x16 <= tile.posx + 16
-		    isInX2 := p.x16 + 16 >= tile.posx && p.x16 + 16 <= tile.posx + 16
-		    isInY1 := p.y16 >= tile.posy - 8 && p.y16 <= tile.posy + 8
-		    isInY2 := p.y16 + 16 >= tile.posy - 8 && p.y16 + 16 <= tile.posy + 8
-		    return (isInX1 && isInY1) || (isInX2 && isInY2)
+	playerLeftBorderInTile := p.x16 >= tile.posx && p.x16 <= tile.posx + 16
+	playerRightBorderInTile := p.x16 + 16 >= tile.posx && p.x16 + 16 <= tile.posx + 16
+	playerBottomInTopPortionOfTile := p.y16 + 16 >= tile.posy - 8 && p.y16 + 16 <= tile.posy - 4
+
+	return ((playerLeftBorderInTile || playerRightBorderInTile) && playerBottomInTopPortionOfTile)
 }
