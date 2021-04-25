@@ -138,7 +138,6 @@ func (o *OminousClouds) UpdateClouds() error {
 	if o.clouds == nil {
 		o.clouds = list.New()
 	}
-	fmt.Printf("%v", o.clouds);
 
 	if o.createNewClouds {
 	    if o.clouds.Len() < 500 && rand.Intn(4) < 3 {
