@@ -11,6 +11,8 @@ type Player struct {
 	isResting    bool
 	hasTurned    bool
 	looksLeft    bool
+	canJump      bool
+	isDigging    bool
 
 	// Character position
 	x16  int
@@ -28,7 +30,11 @@ func (p *Player) moveLeft() {
 		p.looksLeft = true
 		p.hasTurned = true
 	}
-	p.vx16 = -3
+	if p.isDigging {
+		p.vx16 = -1
+	} else {
+		p.vx16 = -3
+	}
 	p.restingCount = 0
 	p.isResting = false
 }
@@ -38,7 +44,11 @@ func (p *Player) moveRight() {
 		p.looksLeft = false
 		p.hasTurned = true
 	}
-	p.vx16 = 3
+	if p.isDigging {
+		p.vx16 = 1
+	} else {
+		p.vx16 = 3
+	}
 	p.restingCount = 0
 	p.isResting = false
 }
@@ -51,20 +61,37 @@ func (p *Player) rest() {
 	}
 }
 
+func (p *Player) dig() {
+	p.vy16 = 1
+	p.restingCount++
+	if p.restingCount >= 5 {
+		p.isResting = true
+	}
+}
+
 func (p *Player) executeMovement() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyW) && p.canJump {
+		p.canJump = false
+		p.isDigging = false
 		p.jump()
 	} else {
-		for _, tile := range tiles {	
+		for _, tile := range tiles {
 			if tile.PlayerCollide(p) {
-				if (p.vy16 >= 0) {
-					p.vy16 = 0
+				p.canJump = true
+				if ebiten.IsKeyPressed(ebiten.KeyS) {
+					p.isDigging = true
+					p.dig()
+				} else {
+					p.isDigging = false
+					if p.vy16 >= 0 {
+						p.vy16 = 0
+					}
+					p.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 				}
-				p.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
 	}
-		
+
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		p.moveLeft()
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
