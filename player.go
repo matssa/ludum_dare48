@@ -28,7 +28,6 @@ func (p *Player) jump() {
 func (p *Player) moveLeft() {
 	if !p.looksLeft {
 		p.looksLeft = true
-		p.hasTurned = true
 	}
 	if p.isDigging {
 		p.vx16 = -1
@@ -42,7 +41,6 @@ func (p *Player) moveLeft() {
 func (p *Player) moveRight() {
 	if p.looksLeft {
 		p.looksLeft = false
-		p.hasTurned = true
 	}
 	if p.isDigging {
 		p.vx16 = 1
@@ -70,6 +68,12 @@ func (p *Player) dig() {
 }
 
 func (p *Player) executeMovement() {
+	// Gravity
+	p.vy16 += gravity
+	if p.vy16 > maxVelocityY {
+		p.vy16 = maxVelocityY
+	}
+
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) && p.canJump {
 		p.canJump = false
 		p.isDigging = false

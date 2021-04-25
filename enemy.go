@@ -1,7 +1,17 @@
 package main
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
+)
+
+const (
+	jump      = 0
+	moveLeft  = 1
+	moveRight = 2
+	idle      = 3
 )
 
 type Enemy struct {
@@ -17,6 +27,8 @@ type Enemy struct {
 	behaviour          int
 	animatedSprite     *AnimatedSprite
 	animatedIdleSprite *AnimatedSprite
+	action             int
+	changeActionAfter  time.Time
 
 	// Enemy position
 	x16  int
@@ -26,7 +38,8 @@ type Enemy struct {
 }
 
 func spawnPosition(g *Game) (int, int) {
-	return 50, 20
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(tileSize * tileXNum), 20
 }
 
 func newEnemy(s float32, a int, b int, g *Game) *Enemy {
@@ -59,6 +72,84 @@ func newEnemy(s float32, a int, b int, g *Game) *Enemy {
 func (g *Game) createEnemies(num int) {
 	for i := 0; i < num; i++ {
 		g.enemies = append(g.enemies, newEnemy(1, 1, 1, g))
+	}
+}
+
+func (e *Enemy) jump() {
+	e.vy16 = -7
+}
+
+func (e *Enemy) moveLeft() {
+	if !e.looksLeft {
+		e.looksLeft = true
+	}
+	e.vx16 = -1
+	e.restingCount = 0
+	e.isResting = false
+}
+
+func (e *Enemy) moveRight() {
+	if e.looksLeft {
+		e.looksLeft = false
+	}
+	e.vx16 = 1
+	e.restingCount = 0
+	e.isResting = false
+}
+
+func (e *Enemy) rest() {
+	e.vx16 = 0
+	e.restingCount++
+	e.isResting = true
+}
+
+func (e *Enemy) changeAction() {
+	rand.Seed(time.Now().UnixNano())
+	actionType := rand.Intn(4)
+	moveDuration := float32(0)
+	switch actionType {
+	case moveLeft:
+		moveDuration = rand.Float32() * 2
+		e.moveLeft()
+	case moveRight:
+		moveDuration = rand.Float32() * 2
+		e.moveRight()
+	case idle:
+		moveDuration = rand.Float32() * 3
+		e.rest()
+	default:
+		moveDuration = rand.Float32() * 2
+		e.jump()
+	}
+	e.changeActionAfter = time.Now().Add(time.Second * time.Duration(moveDuration))
+}
+
+func (e *Enemy) canChangeAction() bool {
+	return time.Now().After(e.changeActionAfter)
+}
+
+func (g *Game) executeEnemyMovement() {
+	for i := range g.enemies {
+		// Gravity
+		g.enemies[i].vy16 += gravity
+		if g.enemies[i].vy16 > maxVelocityY {
+			g.enemies[i].vy16 = maxVelocityY
+		}
+
+		for _, tile := range tiles {
+			if tile.EnemyCollide(g.enemies[i]) {
+				if g.enemies[i].vy16 >= 0 {
+					g.enemies[i].vy16 = 0
+				}
+				g.enemies[i].y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
+			}
+		}
+		if g.enemies[i].canChangeAction() {
+			g.enemies[i].changeAction()
+		}
+		g.enemies[i].y16 += int(g.enemies[i].vy16)
+		g.enemies[i].x16 += int(g.enemies[i].vx16)
+		g.enemies[i].count++
 	}
 }
 

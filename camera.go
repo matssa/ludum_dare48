@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/math/f64"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Camera struct {
@@ -13,6 +16,9 @@ type Camera struct {
 	Position   f64.Vec2
 	ZoomFactor int
 	Rotation   int
+
+	drawDebug    bool
+	manualCamera bool
 }
 
 func (c *Camera) String() string {
@@ -47,6 +53,10 @@ func (c *Camera) Render(world, screen *ebiten.Image) {
 	screen.DrawImage(world, &ebiten.DrawImageOptions{
 		GeoM: c.worldMatrix(),
 	})
+
+	if c.drawDebug {
+		c.renderCameraDebug(screen)
+	}
 }
 
 func (c *Camera) ScreenToWorld(posX, posY int) (float64, float64) {
@@ -67,36 +77,94 @@ func (c *Camera) Reset() {
 	c.ZoomFactor = 0
 }
 
-func controlCamera(g *Game) {
+func (c *Camera) followCharacter(g *Game) {
+	cx := g.player.x16
+	cy := g.player.y16
+
+	worldMatrix := c.worldMatrix()
+	characterScreenPosX, characterScreenPosY := worldMatrix.Apply(float64(cx), float64(cy))
+
+	if characterScreenPosX > 0.7*screenWidth {
+		c.Position[0] += 4
+	}
+	if characterScreenPosX < 0.3*screenWidth {
+		c.Position[0] -= 4
+	}
+	if characterScreenPosY > 0.5*screenHeight {
+		c.Position[1] += 4
+	}
+	if characterScreenPosY < 0.3*screenHeight {
+		c.Position[1] -= 4
+	}
+}
+
+func (c *Camera) toggleDebug() {
+	c.drawDebug = !c.drawDebug
+}
+
+func (c *Camera) toggleCameraControls() {
+	c.manualCamera = !c.manualCamera
+}
+
+func (c *Camera) renderCameraDebug(screen *ebiten.Image) {
+	worldX, worldY := c.ScreenToWorld(ebiten.CursorPosition())
+	ebitenutil.DebugPrintAt(
+		screen,
+		fmt.Sprintf("%s\nCursor World Pos: %.2f,%.2f\ncameraControls (V to toggle): %t",
+			c.String(),
+			worldX, worldY,
+			c.manualCamera),
+		0, screenHeight-48,
+	)
+}
+
+func (c *Camera) manuallyControl() {
+	// Manual controls in debug mode
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.camera.Position[0] -= 1
+		c.Position[0] -= 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.camera.Position[0] += 1
+		c.Position[0] += 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		g.camera.Position[1] -= 1
+		c.Position[1] -= 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		g.camera.Position[1] += 1
+		c.Position[1] += 1
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyQ) {
-		if g.camera.ZoomFactor > -2400 {
-			g.camera.ZoomFactor -= 1
+		if c.ZoomFactor > -2400 {
+			c.ZoomFactor -= 1
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyE) {
-		if g.camera.ZoomFactor < 2400 {
-			g.camera.ZoomFactor += 1
+		if c.ZoomFactor < 2400 {
+			c.ZoomFactor += 1
 		}
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
-		g.camera.Rotation += 1
+		c.Rotation += 1
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		g.camera.Reset()
+		c.Reset()
 	}
+}
+
+func (c *Camera) update(g *Game) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+		c.toggleDebug()
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
+		c.toggleCameraControls()
+	}
+
+	if !c.manualCamera {
+		c.followCharacter(g)
+	} else {
+		c.manuallyControl()
+	}
+
 }
