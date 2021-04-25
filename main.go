@@ -17,6 +17,7 @@
 package main
 
 import (
+	"fmt"
 	_ "image/png"
 	"log"
 
@@ -41,6 +42,8 @@ const (
 
 	gravity      = 0.3
 	maxVelocityY = 5
+
+	chipmunkSize = 32
 )
 
 var (
@@ -49,10 +52,10 @@ var (
 )
 
 type Game struct {
-	player   Player
-	enemies  []*Enemy
+	player       Player
+	enemies      []*Enemy
 	enemyBullets []*EnemyBullet
-	gameMode int
+	gameMode     int
 
 	layers        [][]int
 	world         *ebiten.Image
@@ -77,8 +80,8 @@ func (g *Game) Update() error {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyY) {
-		g.player.isResting = false;
-		g.player.isAttacking = true;
+		g.player.isResting = false
+		g.player.isAttacking = true
 	}
 
 	g.camera.update(g)
@@ -89,6 +92,16 @@ func (g *Game) Update() error {
 		g.player.executeMovement()
 		g.UpdateEnemies()
 		g.UpdateBullets()
+		if g.isPlayerHit() {
+			if g.player.health <= 0 {
+				g.gameMode = gameOver
+			}
+		}
+
+	case gameOver:
+		fmt.Printf("Game Over! :(")
+		g.player.health = 100
+		g.gameMode = play
 
 	default:
 		g.gameMode = play
@@ -108,7 +121,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
-		DrawOverlay(g.world, 5)
+		DrawOverlay(g.world, g.player.health)
 		for _, tile := range tiles {
 			tile.DrawTile(g.world)
 		}
@@ -128,9 +141,9 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
-		player: Player{count: 0, hasTurned: false},
+		player: Player{health: 100, count: 0, hasTurned: false},
 	}
-	g.createEnemies(4)
+	g.createEnemies(2)
 	buildWorld(g)
 
 	// Create some tiles

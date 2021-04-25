@@ -100,15 +100,15 @@ func initAnimation() {
 	playerSprite = NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		5,
 		runnerImage)
 	playerIdleSprite = NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		3,
 		idleImage)
 	playerAttackSprite = NewAnimatedSprite(

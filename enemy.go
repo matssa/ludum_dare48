@@ -23,16 +23,16 @@ type Enemy struct {
 	isShooting   bool
 
 	// Enemy stuff
-	isAlive            bool
-	size               float64
-	ability            int
-	behaviour          int
-	animatedSprite     *AnimatedSprite
-	animatedIdleSprite *AnimatedSprite
+	isAlive                bool
+	size                   float64
+	ability                int
+	behaviour              int
+	animatedSprite         *AnimatedSprite
+	animatedIdleSprite     *AnimatedSprite
 	animatedShootingSprite *AnimatedSprite
-	shootFrameCount    int
-	action             int
-	changeActionAfter  time.Time
+	shootFrameCount        int
+	action                 int
+	changeActionAfter      time.Time
 
 	// Enemy position
 	x16  int
@@ -50,15 +50,15 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 	animatedSprite := NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		5,
 		runnerEnemyImage)
 	animatedIdleSprite := NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		3,
 		idleEnemyImage)
 	animatedShootingSprite := NewAnimatedSprite(
@@ -73,11 +73,11 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 		isAlive: true,
 		size:    s,
 		ability: a, behaviour: b,
-		animatedSprite:     animatedSprite,
-		animatedIdleSprite: animatedIdleSprite,
+		animatedSprite:         animatedSprite,
+		animatedIdleSprite:     animatedIdleSprite,
 		animatedShootingSprite: animatedShootingSprite,
-		x16:                x,
-		y16:                y,
+		x16:                    x,
+		y16:                    y,
 	}
 }
 
@@ -149,8 +149,7 @@ func (e *Enemy) canChangeAction() bool {
 func (e *Enemy) shouldShoot(p Player) bool {
 	aggr := 16
 
-
-	isInY := e.y16 + aggr >= p.y16 && e.y16 - aggr <= p.y16 + 32
+	isInY := e.y16+aggr >= p.y16 && e.y16-aggr <= p.y16+32
 	var isOnCorrectSide bool
 	if e.looksLeft {
 		isOnCorrectSide = e.x16 > p.x16
@@ -159,9 +158,6 @@ func (e *Enemy) shouldShoot(p Player) bool {
 	}
 	return isInY && isOnCorrectSide
 }
-
-
-
 
 func (g *Game) UpdateEnemies() {
 	for i := range g.enemies {
@@ -185,9 +181,9 @@ func (g *Game) UpdateEnemies() {
 		if g.enemies[i].shouldShoot(g.player) {
 			g.enemies[i].shoot()
 		} else {
-		    if g.enemies[i].canChangeAction() {
-			    g.enemies[i].changeAction()
-		    }
+			if g.enemies[i].canChangeAction() {
+				g.enemies[i].changeAction()
+			}
 		}
 		g.enemies[i].y16 += int(g.enemies[i].vy16)
 		g.enemies[i].x16 += int(g.enemies[i].vx16)
@@ -200,40 +196,41 @@ func (g *Game) drawEnemies() {
 		if (!g.enemies[i].isAlive) {
 			continue;
 		}
+	for i, e := range g.enemies {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(g.enemies[i].size, g.enemies[i].size)
-		if g.enemies[i].looksLeft {
+		op.GeoM.Scale(e.size, e.size)
+		if e.looksLeft {
 			op.GeoM.Scale(-1, 1)
-			op.GeoM.Translate(float64(g.enemies[i].animatedSprite.frameWidth), 0)
+			op.GeoM.Translate(float64(e.animatedSprite.frameWidth), 0)
 		}
-		op.GeoM.Translate(float64(g.enemies[i].x16), float64(g.enemies[i].y16))
+		op.GeoM.Translate(float64(e.x16), float64(e.y16))
 		op.Filter = ebiten.FilterLinear
-		if g.enemies[i].isResting {
-			g.world.DrawImage(g.enemies[i].animatedIdleSprite.GetCurrFrame(), op)
-			if g.enemies[i].restingCount >= 10 {
-				g.enemies[i].restingCount = 0
-				g.enemies[i].animatedIdleSprite.NextFrame()
+		if e.isResting {
+			g.world.DrawImage(e.animatedIdleSprite.GetCurrFrame(), op)
+			if e.restingCount >= 10 {
+				e.restingCount = 0
+				e.animatedIdleSprite.NextFrame()
 			}
 		} else if g.enemies[i].isShooting {
 			e := g.enemies[i]
 			g.world.DrawImage(e.animatedShootingSprite.GetCurrFrame(), op)
 			if e.shootFrameCount >= 6 {
-				g.CreateBullet(e.x16, e.y16 + 4, e.looksLeft)
+				g.CreateBullet(e.x16, e.y16+4, e.looksLeft)
 				e.isShooting = false
 				e.changeAction()
-				e.shootFrameCount = 0;
+				e.shootFrameCount = 0
 				e.animatedShootingSprite.ResetSprite()
 			} else if e.count >= 5 {
-				e.shootFrameCount += 1;
+				e.shootFrameCount += 1
 				e.count = 0
 				e.animatedShootingSprite.NextFrame()
 			}
 
 		} else {
-			g.world.DrawImage(g.enemies[i].animatedSprite.GetCurrFrame(), op)
-			if g.enemies[i].count >= 5 {
-				g.enemies[i].count = 0
-				g.enemies[i].animatedSprite.NextFrame()
+			g.world.DrawImage(e.animatedSprite.GetCurrFrame(), op)
+			if e.count >= 5 {
+				e.count = 0
+				e.animatedSprite.NextFrame()
 			}
 		}
 	}

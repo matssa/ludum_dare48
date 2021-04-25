@@ -1,11 +1,14 @@
 package main
 
 import (
+	"math"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Player struct {
+	health       int
 	count        int
 	restingCount int
 	isResting    bool
@@ -122,6 +125,33 @@ func (p *Player) executeMovement() {
 	p.y16 += int(p.vy16)
 	p.x16 += int(p.vx16)
 	p.count++
+}
+
+func (p *Player) pushAway(angle float64) {
+	deg := angle * 180 / math.Pi
+	p.vx16 += math.Cos(deg) * 3
+	p.vy16 += math.Sin(deg) * 3
+}
+
+func (g *Game) isPlayerHit() bool {
+	hasHit := false
+	angle := float64(0)
+	for _, e := range g.enemies {
+		isInX1 := g.player.x16+16 >= e.x16 && g.player.x16+16 <= e.x16+32
+		isInX2 := g.player.x16-16 >= e.x16-32 && g.player.x16 <= e.x16
+		isInY1 := g.player.y16+16 >= e.y16-32 && g.player.y16 <= e.y16+32
+		isInY2 := g.player.y16 >= e.y16 && g.player.y16 <= e.y16
+
+		hasHit = (isInX1 && isInY1) || (isInX2 && isInY2)
+		if hasHit {
+			deltaX := float64(g.player.x16 - e.x16)
+			deltaY := float64(e.y16 - g.player.y16)
+			angle = math.Atan2(deltaY, deltaX)
+			g.player.health -= 25
+			g.player.pushAway(angle)
+		}
+	}
+	return hasHit
 }
 
 func (g *Game) drawCharacter() {
