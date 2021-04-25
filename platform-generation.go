@@ -41,7 +41,7 @@ func createMap() [][]*Tile {
 	for i := 0; i < 10; i++ {
 		startLine = append(startLine, NewTile(
 			0 + i *16,
-			300,
+			1200,
 			"top"))
 	}
 	lines = append(lines, startLine)
@@ -55,7 +55,7 @@ func createMap() [][]*Tile {
 	fmt.Printf("lengths %v", lineLengths);
 
 	prevx := 0
-	prevy := 300
+	prevy := 1200
 	lineXStarts := make([]int, 0, 0)
 	lineYStarts := make([]int, 0, 0)
 	for i := 0; i < numLines; i++ {
@@ -64,23 +64,23 @@ func createMap() [][]*Tile {
 		maxNewY := prevy + (3 * 16)
 		minNewY := prevy - (3 * 16)
 
-		borderLimit := 20
+		borderLimit := 300
 
 		var newX int
 		if minNewX < borderLimit {
 			newX = maxNewX
-		} else if maxNewX > screenWidth - borderLimit {
+		} else if maxNewX > worldWidth - borderLimit {
 			newX = minNewX
 		} else {
-			newX = rand.Intn(maxNewX - minNewX) + minNewX
+		newX = rand.Intn(maxNewX - minNewX) + minNewX
 		}
 		var newY int
 		if minNewY < borderLimit {
 			newY = maxNewY
-		} else if maxNewY > screenHeight - borderLimit {
+		} else if maxNewY > (worldHeight - 400) - borderLimit {
 			newY = minNewY
 		} else {
-			newY = rand.Intn(maxNewY - minNewY) + minNewY
+		newY = rand.Intn(maxNewY - minNewY) + minNewY
 		}
 
 		lineXStarts = append(lineXStarts, newX)

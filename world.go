@@ -19,8 +19,8 @@ var (
 )
 
 const (
-	worldWidth  = 4800
-	worldHeight = 480
+	worldWidth  = 4800 * 2
+	worldHeight = 480 * 4
 	worldSizeX  = worldWidth / tileSize
 )
 
