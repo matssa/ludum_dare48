@@ -39,7 +39,7 @@ const (
 	menu     = 2
 	gameOver = 3
 
-	gravity = 0.3
+	gravity      = 0.3
 	maxVelocityY = 5
 )
 
@@ -49,28 +49,17 @@ var (
 
 type Game struct {
 	player   Player
+	enemies  []*Enemy
 	gameMode int
 
 	layers [][]int
 	world  *ebiten.Image
 	camera Camera
-
 }
 
 func init() {
 	initAnimation()
 	initWorldImg()
-}
-
-func (g *Game) init() {
-	g.player.x16 = 0
-	g.player.y16 = 100 * 16
-}
-
-func newGame() *Game {
-	g := &Game{}
-	g.init()
-	return g
 }
 
 func (g *Game) Update() error {
@@ -93,32 +82,10 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) drawCharacter() {
-	op := &ebiten.DrawImageOptions{}
-	if g.player.looksLeft {
-		op.GeoM.Scale(-1, 1)
-		op.GeoM.Translate(float64(animatedSprite.frameWidth), 0)
-	}
-	op.GeoM.Translate(float64(g.player.x16), float64(g.player.y16))
-	op.Filter = ebiten.FilterLinear
-	if g.player.isResting {
-		g.world.DrawImage(animatedIdleSprite.GetCurrFrame(), op)
-		if g.player.restingCount >= 10 {
-			g.player.restingCount = 0
-			animatedIdleSprite.NextFrame()
-		}
-	} else {
-		g.world.DrawImage(animatedSprite.GetCurrFrame(), op)
-		if g.player.count >= 5 {
-			g.player.count = 0
-			animatedSprite.NextFrame()
-		}
-	}
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawWorld()
 	g.drawCharacter()
+	g.drawEnemies()
 
 	g.camera.Render(g.world, screen)
 
@@ -129,7 +96,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			tile.DrawTile(screen)
 		}
 	}
-
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -141,35 +107,31 @@ func main() {
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
 		player: Player{count: 0, hasTurned: false},
 	}
+	g.createEnemies(3)
 	buildWorld(g)
-
 
 	// Create some tiles
 	posx := 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 100, "top"))
-		posx += 16;
+		posx += 16
 	}
 	tiles = append(tiles, NewTile(posx, 100, "top-right"))
 	posx = 64
 	tiles = append(tiles, NewTile(posx, 150, "top-left"))
 	for i := 0; i < 20; i++ {
-		posx += 16;
+		posx += 16
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
-		posx += 16;
+		posx += 16
 	}
 	tiles = append(tiles, NewTile(posx, 200, "top-right"))
 
-
-
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
-
-	newGame()
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
