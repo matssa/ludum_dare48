@@ -38,6 +38,9 @@ const (
 	play     = 1
 	menu     = 2
 	gameOver = 3
+
+	gravity = 0.3
+	maxVelocityY = 5
 )
 
 var (
@@ -77,9 +80,9 @@ func (g *Game) Update() error {
 	switch g.gameMode {
 	case play:
 		// Gravity
-		g.player.vy16 += 0.3
-		if g.player.vy16 > 10 {
-			g.player.vy16 = 10
+		g.player.vy16 += gravity
+		if g.player.vy16 > maxVelocityY {
+			g.player.vy16 = maxVelocityY
 		}
 
 		g.player.executeMovement()

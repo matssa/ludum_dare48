@@ -57,7 +57,10 @@ func (p *Player) executeMovement() {
 	} else {
 		for _, tile := range tiles {	
 			if tile.PlayerCollide(p) {
-				p.vy16 = 0
+				if (p.vy16 >= 0) {
+					p.vy16 = 0
+				}
+				p.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
 	}
