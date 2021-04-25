@@ -2,20 +2,23 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	// "log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-
 type EnemyBullet struct {
-	posx int
-	posy int
-	goingLeft bool
-	count int
+	posx           int
+	posy           int
+	goingLeft      bool
+	count          int
 	animatedSprite *AnimatedSprite
-	isDestroyed bool
+	isDestroyed    bool
+	expireAt       time.Time
 }
+
 const (
 	BULLET_VELOCITY = 7
 )
@@ -23,7 +26,6 @@ const (
 var (
 	bulletAnimatedSprite *AnimatedSprite
 )
-
 
 func init() {
 	bulletAnimatedSprite = NewAnimatedSprite(
@@ -35,8 +37,6 @@ func init() {
 		enemyBulletImage)
 }
 
-	
-
 func (g *Game) CreateBullet(posx int, posy int, goingLeft bool) {
 	bulletAnimatedSprite = NewAnimatedSprite(
 		0,
@@ -46,19 +46,23 @@ func (g *Game) CreateBullet(posx int, posy int, goingLeft bool) {
 		13,
 		enemyBulletImage)
 	myNewBullet := &EnemyBullet{
-		posx:      posx,
-		posy:      posy,
-		goingLeft: goingLeft,
+		posx:           posx,
+		posy:           posy,
+		goingLeft:      goingLeft,
 		animatedSprite: bulletAnimatedSprite,
+		expireAt:       time.Now().Add(time.Second * 3),
 	}
-	fmt.Print("Adding bullet %v", myNewBullet);
+	fmt.Print("Adding bullet %v", myNewBullet)
 	g.enemyBullets = append(g.enemyBullets, myNewBullet)
 }
 
 func (g *Game) UpdateBullets() {
 	for _, bullet := range g.enemyBullets {
+		if time.Now().After(bullet.expireAt) {
+			bullet.isDestroyed = true
+		}
 		if bullet.isDestroyed {
-			continue;
+			continue
 		}
 		// Update the bullets
 		if bullet.goingLeft {
@@ -78,7 +82,7 @@ func (g *Game) UpdateBullets() {
 func (g *Game) DrawBullets() {
 	for _, bullet := range g.enemyBullets {
 		if bullet.isDestroyed {
-			continue;
+			continue
 		}
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(bullet.posx), float64(bullet.posy))
@@ -87,16 +91,15 @@ func (g *Game) DrawBullets() {
 			bullet.count = 0
 			bullet.animatedSprite.NextFrame()
 		}
-		bullet.count += 1;
+		bullet.count += 1
 	}
 }
 
 func (b *EnemyBullet) IsPlayerHit(p Player) bool {
 	aggr := 6
 
-
-	isInX := b.posx >= p.x16 && b.posx + aggr <= p.x16 + 32
-	isInY := b.posy >= p.y16 && b.posy + aggr <= p.y16 + 32
+	isInX := b.posx >= p.x16 && b.posx+aggr <= p.x16+32
+	isInY := b.posy >= p.y16 && b.posy+aggr <= p.y16+32
 
 	return isInY && isInX
 }
