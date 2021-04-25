@@ -18,6 +18,7 @@ var (
 	playerAttackSprite *AnimatedSprite
 	runnerEnemyImage   *ebiten.Image
 	idleEnemyImage     *ebiten.Image
+	shootingEnemyImage     *ebiten.Image
 )
 
 type AnimatedSprite struct {
@@ -52,6 +53,10 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	shootingEnemy, err := ebitenutil.OpenFile("./resources/sprites/enemy-chipmunk-attack.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	img, _, err := image.Decode(running)
 	if err != nil {
 		log.Fatal(err)
@@ -72,11 +77,16 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	imgShootingEnemy, _, err := image.Decode(shootingEnemy)
+	if err != nil {
+		log.Fatal(err)
+	}
 	runnerImage = ebiten.NewImageFromImage(img)
 	idleImage = ebiten.NewImageFromImage(imgIdle)
 	attackImage = ebiten.NewImageFromImage(imgAttack)
 	runnerEnemyImage = ebiten.NewImageFromImage(imgEnemy)
 	idleEnemyImage = ebiten.NewImageFromImage(imgIdleEnemy)
+	shootingEnemyImage = ebiten.NewImageFromImage(imgShootingEnemy)
 	playerSprite = NewAnimatedSprite(
 		0,
 		0,

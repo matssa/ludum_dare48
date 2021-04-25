@@ -12,6 +12,7 @@ const (
 	moveLeft  = 1
 	moveRight = 2
 	idle      = 3
+	shooting  = 4
 )
 
 type Enemy struct {
@@ -19,6 +20,7 @@ type Enemy struct {
 	restingCount int
 	looksLeft    bool
 	isResting    bool
+	isShooting   bool
 
 	// Enemy stuff
 	isAlive            bool
@@ -27,6 +29,8 @@ type Enemy struct {
 	behaviour          int
 	animatedSprite     *AnimatedSprite
 	animatedIdleSprite *AnimatedSprite
+	animatedShootingSprite *AnimatedSprite
+	shootFrameCount    int
 	action             int
 	changeActionAfter  time.Time
 
@@ -57,6 +61,13 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 		32,
 		3,
 		idleEnemyImage)
+	animatedShootingSprite := NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		13,
+		shootingEnemyImage)
 	x, y := spawnPosition(g)
 	return &Enemy{
 		isAlive: true,
@@ -64,6 +75,7 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 		ability: a, behaviour: b,
 		animatedSprite:     animatedSprite,
 		animatedIdleSprite: animatedIdleSprite,
+		animatedShootingSprite: animatedShootingSprite,
 		x16:                x,
 		y16:                y,
 	}
@@ -103,6 +115,12 @@ func (e *Enemy) rest() {
 	e.isResting = true
 }
 
+func (e *Enemy) shoot() {
+	e.vx16 = 0
+	e.isShooting = true
+	e.isResting = false
+}
+
 func (e *Enemy) changeAction() {
 	rand.Seed(time.Now().UnixNano())
 	actionType := rand.Intn(4)
@@ -128,7 +146,24 @@ func (e *Enemy) canChangeAction() bool {
 	return time.Now().After(e.changeActionAfter)
 }
 
-func (g *Game) executeEnemyMovement() {
+func (e *Enemy) shouldShoot(p Player) bool {
+	aggr := 16
+
+
+	isInY := e.y16 + aggr >= p.y16 && e.y16 - aggr <= p.y16 + 32
+	var isOnCorrectSide bool
+	if e.looksLeft {
+		isOnCorrectSide = e.x16 > p.x16
+	} else {
+		isOnCorrectSide = e.x16 < p.x16
+	}
+	return isInY && isOnCorrectSide
+}
+
+
+
+
+func (g *Game) UpdateEnemies() {
 	for i := range g.enemies {
 		// Gravity
 		g.enemies[i].vy16 += gravity
@@ -144,8 +179,12 @@ func (g *Game) executeEnemyMovement() {
 				g.enemies[i].y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
-		if g.enemies[i].canChangeAction() {
-			g.enemies[i].changeAction()
+		if g.enemies[i].shouldShoot(g.player) {
+			g.enemies[i].shoot()
+		} else {
+		    if g.enemies[i].canChangeAction() {
+			    g.enemies[i].changeAction()
+		    }
 		}
 		g.enemies[i].y16 += int(g.enemies[i].vy16)
 		g.enemies[i].x16 += int(g.enemies[i].vx16)
@@ -169,6 +208,20 @@ func (g *Game) drawEnemies() {
 				g.enemies[i].restingCount = 0
 				g.enemies[i].animatedIdleSprite.NextFrame()
 			}
+		} else if g.enemies[i].isShooting {
+			e := g.enemies[i]
+			g.world.DrawImage(e.animatedShootingSprite.GetCurrFrame(), op)
+			if e.shootFrameCount >= 5 {
+				e.isShooting = false
+				e.changeAction()
+				e.shootFrameCount = 0;
+				e.animatedShootingSprite.ResetSprite()
+			} else if e.count >= 5 {
+				e.shootFrameCount += 1;
+				e.count = 0
+				e.animatedShootingSprite.NextFrame()
+			}
+
 		} else {
 			g.world.DrawImage(g.enemies[i].animatedSprite.GetCurrFrame(), op)
 			if g.enemies[i].count >= 5 {

@@ -86,7 +86,7 @@ func (g *Game) Update() error {
 	case play:
 
 		g.player.executeMovement()
-		g.executeEnemyMovement()
+		g.UpdateEnemies()
 
 	default:
 		g.gameMode = play
@@ -144,7 +144,7 @@ func main() {
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
 		posx += TILE_SIZE
 	}
