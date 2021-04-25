@@ -30,7 +30,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
-const maxHealth = 10
+const maxHealth = 100
 
 var (
 	mplusNormalFont font.Face

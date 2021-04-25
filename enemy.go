@@ -46,15 +46,15 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 	animatedSprite := NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		5,
 		runnerEnemyImage)
 	animatedIdleSprite := NewAnimatedSprite(
 		0,
 		0,
-		32,
-		32,
+		chipmunkSize,
+		chipmunkSize,
 		3,
 		idleEnemyImage)
 	x, y := spawnPosition(g)
@@ -129,51 +129,51 @@ func (e *Enemy) canChangeAction() bool {
 }
 
 func (g *Game) executeEnemyMovement() {
-	for i := range g.enemies {
+	for _, e := range g.enemies {
 		// Gravity
-		g.enemies[i].vy16 += gravity
-		if g.enemies[i].vy16 > maxVelocityY {
-			g.enemies[i].vy16 = maxVelocityY
+		e.vy16 += gravity
+		if e.vy16 > maxVelocityY {
+			e.vy16 = maxVelocityY
 		}
 
 		for _, tile := range tiles {
-			if tile.EnemyCollide(g.enemies[i]) {
-				if g.enemies[i].vy16 >= 0 {
-					g.enemies[i].vy16 = 0
+			if tile.EnemyCollide(e) {
+				if e.vy16 >= 0 {
+					e.vy16 = 0
 				}
-				g.enemies[i].y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
+				e.y16 = tile.posy - 22 // TODO Need to offset the tile y pos ofcourse, but why does 22 work?
 			}
 		}
-		if g.enemies[i].canChangeAction() {
-			g.enemies[i].changeAction()
+		if e.canChangeAction() {
+			e.changeAction()
 		}
-		g.enemies[i].y16 += int(g.enemies[i].vy16)
-		g.enemies[i].x16 += int(g.enemies[i].vx16)
-		g.enemies[i].count++
+		e.y16 += int(e.vy16)
+		e.x16 += int(e.vx16)
+		e.count++
 	}
 }
 
 func (g *Game) drawEnemies() {
-	for i := range g.enemies {
+	for _, e := range g.enemies {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(g.enemies[i].size, g.enemies[i].size)
-		if g.enemies[i].looksLeft {
+		op.GeoM.Scale(e.size, e.size)
+		if e.looksLeft {
 			op.GeoM.Scale(-1, 1)
-			op.GeoM.Translate(float64(g.enemies[i].animatedSprite.frameWidth), 0)
+			op.GeoM.Translate(float64(e.animatedSprite.frameWidth), 0)
 		}
-		op.GeoM.Translate(float64(g.enemies[i].x16), float64(g.enemies[i].y16))
+		op.GeoM.Translate(float64(e.x16), float64(e.y16))
 		op.Filter = ebiten.FilterLinear
-		if g.enemies[i].isResting {
-			g.world.DrawImage(g.enemies[i].animatedIdleSprite.GetCurrFrame(), op)
-			if g.enemies[i].restingCount >= 10 {
-				g.enemies[i].restingCount = 0
-				g.enemies[i].animatedIdleSprite.NextFrame()
+		if e.isResting {
+			g.world.DrawImage(e.animatedIdleSprite.GetCurrFrame(), op)
+			if e.restingCount >= 10 {
+				e.restingCount = 0
+				e.animatedIdleSprite.NextFrame()
 			}
 		} else {
-			g.world.DrawImage(g.enemies[i].animatedSprite.GetCurrFrame(), op)
-			if g.enemies[i].count >= 5 {
-				g.enemies[i].count = 0
-				g.enemies[i].animatedSprite.NextFrame()
+			g.world.DrawImage(e.animatedSprite.GetCurrFrame(), op)
+			if e.count >= 5 {
+				e.count = 0
+				e.animatedSprite.NextFrame()
 			}
 		}
 	}
