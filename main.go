@@ -87,15 +87,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawCharacter()
 	g.drawEnemies()
 
-	g.camera.Render(g.world, screen)
-
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
-		DrawOverlay(screen, 5)
+		DrawOverlay(g.world, 5)
 		for _, tile := range tiles {
-			tile.DrawTile(screen)
+			tile.DrawTile(g.world)
 		}
 	}
+
+	// Anything relative to world must be drawn on g.world before calling
+	// Render()
+	g.camera.Render(g.world, screen)
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -114,19 +117,19 @@ func main() {
 	posx := 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 100, "top"))
-		posx += 16
+		posx += TILE_SIZE
 	}
 	tiles = append(tiles, NewTile(posx, 100, "top-right"))
 	posx = 64
 	tiles = append(tiles, NewTile(posx, 150, "top-left"))
 	for i := 0; i < 20; i++ {
-		posx += 16
+		posx += TILE_SIZE
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
-		posx += 16
+		posx += TILE_SIZE
 	}
 	tiles = append(tiles, NewTile(posx, 200, "top-right"))
 
