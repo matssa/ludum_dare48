@@ -55,6 +55,7 @@ type Game struct {
 	layers [][]int
 	world  *ebiten.Image
 	camera Camera
+	ominousClouds OminousClouds
 }
 
 func init() {
@@ -80,6 +81,8 @@ func (g *Game) Update() error {
 	default:
 		g.gameMode = play
 	}
+
+	g.ominousClouds.UpdateClouds()
 	return nil
 }
 
@@ -96,6 +99,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			tile.DrawTile(g.world)
 		}
 	}
+	g.ominousClouds.DrawClouds(g.world)
 
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
