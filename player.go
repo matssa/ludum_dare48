@@ -137,6 +137,9 @@ func (g *Game) isPlayerHit() bool {
 	hasHit := false
 	angle := float64(0)
 	for _, e := range g.enemies {
+		if (!e.isAlive) {
+			continue;
+		}
 		isInX1 := g.player.x16+16 >= e.x16 && g.player.x16+16 <= e.x16+32
 		isInX2 := g.player.x16-16 >= e.x16-32 && g.player.x16 <= e.x16
 		isInY1 := g.player.y16+16 >= e.y16-32 && g.player.y16 <= e.y16+32
@@ -147,7 +150,7 @@ func (g *Game) isPlayerHit() bool {
 			deltaX := float64(g.player.x16 - e.x16)
 			deltaY := float64(e.y16 - g.player.y16)
 			angle = math.Atan2(deltaY, deltaX)
-			g.player.health -= 25
+			g.player.health -= 1
 			g.player.pushAway(angle)
 		}
 	}

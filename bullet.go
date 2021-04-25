@@ -69,6 +69,7 @@ func (g *Game) UpdateBullets() {
 
 		if bullet.IsPlayerHit(g.player) {
 			fmt.Printf("Its a hit!")
+			g.player.health -= 1
 			bullet.isDestroyed = true
 		}
 	}

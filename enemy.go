@@ -192,11 +192,10 @@ func (g *Game) UpdateEnemies() {
 }
 
 func (g *Game) drawEnemies() {
-	for i := range g.enemies {
+	for i, e := range g.enemies {
 		if (!g.enemies[i].isAlive) {
 			continue;
 		}
-	for i, e := range g.enemies {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(e.size, e.size)
 		if e.looksLeft {
