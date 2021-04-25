@@ -22,7 +22,7 @@ type Enemy struct {
 
 	// Enemy stuff
 	isAlive            bool
-	size               float32
+	size               float64
 	ability            int
 	behaviour          int
 	animatedSprite     *AnimatedSprite
@@ -42,19 +42,19 @@ func spawnPosition(g *Game) (int, int) {
 	return rand.Intn(tileSize * tileXNum), 20
 }
 
-func newEnemy(s float32, a int, b int, g *Game) *Enemy {
+func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 	animatedSprite := NewAnimatedSprite(
 		0,
 		0,
-		int(32*s),
-		int(32*s),
+		32,
+		32,
 		5,
 		runnerEnemyImage)
 	animatedIdleSprite := NewAnimatedSprite(
 		0,
 		0,
-		int(32*s),
-		int(32*s),
+		32,
+		32,
 		3,
 		idleEnemyImage)
 	x, y := spawnPosition(g)
@@ -156,6 +156,7 @@ func (g *Game) executeEnemyMovement() {
 func (g *Game) drawEnemies() {
 	for i := range g.enemies {
 		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(g.enemies[i].size, g.enemies[i].size)
 		if g.enemies[i].looksLeft {
 			op.GeoM.Scale(-1, 1)
 			op.GeoM.Translate(float64(g.enemies[i].animatedSprite.frameWidth), 0)

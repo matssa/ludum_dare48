@@ -44,7 +44,7 @@ const (
 )
 
 var (
-	tiles = make([]*Tile, 0, 0)
+	tiles     = make([]*Tile, 0, 0)
 	runClouds = false
 )
 
@@ -53,9 +53,9 @@ type Game struct {
 	enemies  []*Enemy
 	gameMode int
 
-	layers [][]int
-	world  *ebiten.Image
-	camera Camera
+	layers        [][]int
+	world         *ebiten.Image
+	camera        Camera
 	ominousClouds OminousClouds
 }
 
@@ -86,7 +86,6 @@ func (g *Game) Update() error {
 	default:
 		g.gameMode = play
 	}
-
 
 	g.ominousClouds.UpdateClouds()
 
@@ -123,7 +122,7 @@ func main() {
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
 		player: Player{count: 0, hasTurned: false},
 	}
-	g.createEnemies(3)
+	g.createEnemies(4)
 	buildWorld(g)
 
 	// Create some tiles
