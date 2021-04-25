@@ -165,6 +165,9 @@ func (e *Enemy) shouldShoot(p Player) bool {
 
 func (g *Game) UpdateEnemies() {
 	for i := range g.enemies {
+		if (!g.enemies[i].isAlive) {
+			continue;
+		}
 		// Gravity
 		g.enemies[i].vy16 += gravity
 		if g.enemies[i].vy16 > maxVelocityY {
@@ -194,6 +197,9 @@ func (g *Game) UpdateEnemies() {
 
 func (g *Game) drawEnemies() {
 	for i := range g.enemies {
+		if (!g.enemies[i].isAlive) {
+			continue;
+		}
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(g.enemies[i].size, g.enemies[i].size)
 		if g.enemies[i].looksLeft {

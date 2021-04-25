@@ -11,6 +11,7 @@ type Player struct {
 	isResting    bool
 	isAttacking  bool
 	attackFramesCount int
+	attackedThisAnimation bool
 	hasTurned    bool
 	looksLeft    bool
 	canJump      bool
@@ -51,6 +52,19 @@ func (p *Player) moveRight() {
 	}
 	p.restingCount = 0
 	p.isResting = false
+}
+
+func (p *Player) attack(g *Game) {
+	aggr := 32
+	for _, enemy := range g.enemies {
+		playerMidX := p.x16 + 16
+		playerMidY := p.y16
+		inX := playerMidX + aggr >= enemy.x16 && playerMidX - aggr <= enemy.x16 + 32
+		inY := playerMidY + aggr >= enemy.y16 && playerMidY - aggr <= enemy.y16 + 32
+		if (inX && inY) {
+			enemy.isAlive = false
+		}
+	}
 }
 
 func (p *Player) rest() {
@@ -126,10 +140,15 @@ func (g *Game) drawCharacter() {
 		}
 	} else if g.player.isAttacking {
 		g.world.DrawImage(playerAttackSprite.GetCurrFrame(), op)
+		if g.player.attackFramesCount == 3 && !g.player.attackedThisAnimation {
+			g.player.attack(g)
+			g.player.attackedThisAnimation = true;
+		}
 		if g.player.attackFramesCount >= 6 {
 			g.player.isAttacking = false
 			g.player.isResting = true
 			g.player.attackFramesCount = 0;
+			g.player.attackedThisAnimation = false;
 			playerAttackSprite.ResetSprite()
 		} else if g.player.count >= 5 {
 			g.player.attackFramesCount += 1;
