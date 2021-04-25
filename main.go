@@ -75,6 +75,11 @@ func (g *Game) Update() error {
 		g.ominousClouds.StopClouds()
 	}
 
+	if ebiten.IsKeyPressed(ebiten.KeyY) {
+		g.player.isResting = false;
+		g.player.isAttacking = true;
+	}
+
 	g.camera.update(g)
 
 	switch g.gameMode {

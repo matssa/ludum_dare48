@@ -12,8 +12,10 @@ import (
 var (
 	runnerImage        *ebiten.Image
 	idleImage          *ebiten.Image
-	animatedSprite     *AnimatedSprite
-	animatedIdleSprite *AnimatedSprite
+	attackImage        *ebiten.Image
+	playerSprite     *AnimatedSprite
+	playerIdleSprite *AnimatedSprite
+	playerAttackSprite *AnimatedSprite
 	runnerEnemyImage   *ebiten.Image
 	idleEnemyImage     *ebiten.Image
 )
@@ -38,6 +40,10 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	attack, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-attack.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	runningEnemy, err := ebitenutil.OpenFile("./resources/sprites/enemy-chipmunk-running.png")
 	if err != nil {
 		log.Fatal(err)
@@ -54,6 +60,10 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	imgAttack, _, err := image.Decode(attack)
+	if err != nil {
+		log.Fatal(err)
+	}
 	imgEnemy, _, err := image.Decode(runningEnemy)
 	if err != nil {
 		log.Fatal(err)
@@ -64,22 +74,30 @@ func initAnimation() {
 	}
 	runnerImage = ebiten.NewImageFromImage(img)
 	idleImage = ebiten.NewImageFromImage(imgIdle)
+	attackImage = ebiten.NewImageFromImage(imgAttack)
 	runnerEnemyImage = ebiten.NewImageFromImage(imgEnemy)
 	idleEnemyImage = ebiten.NewImageFromImage(imgIdleEnemy)
-	animatedSprite = NewAnimatedSprite(
+	playerSprite = NewAnimatedSprite(
 		0,
 		0,
 		32,
 		32,
 		5,
 		runnerImage)
-	animatedIdleSprite = NewAnimatedSprite(
+	playerIdleSprite = NewAnimatedSprite(
 		0,
 		0,
 		32,
 		32,
 		3,
 		idleImage)
+	playerAttackSprite = NewAnimatedSprite(
+		0,
+		0,
+		32,
+		32,
+		6,
+		attackImage)
 }
 
 // frameOS and frameOY should probably be 0
@@ -106,4 +124,8 @@ func (a *AnimatedSprite) NextFrame() {
 	} else {
 		a.currFrameNum++
 	}
+}
+
+func (a *AnimatedSprite) ResetSprite() {
+	a.currFrameNum = 0;
 }
