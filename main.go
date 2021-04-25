@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	screenWidth  = 320
-	screenHeight = 240
+	screenWidth  = 640
+	screenHeight = 480
 
 	frameOX     = 0
 	frameOY     = 32
