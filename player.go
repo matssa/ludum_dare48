@@ -126,7 +126,7 @@ func (g *Game) drawCharacter() {
 		}
 	} else if g.player.isAttacking {
 		g.world.DrawImage(playerAttackSprite.GetCurrFrame(), op)
-		if g.player.attackFramesCount >= 5 {
+		if g.player.attackFramesCount >= 6 {
 			g.player.isAttacking = false
 			g.player.isResting = true
 			g.player.attackFramesCount = 0;

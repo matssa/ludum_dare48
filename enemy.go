@@ -66,7 +66,7 @@ func newEnemy(s float64, a int, b int, g *Game) *Enemy {
 		0,
 		32,
 		32,
-		13,
+		6,
 		shootingEnemyImage)
 	x, y := spawnPosition(g)
 	return &Enemy{
@@ -211,7 +211,8 @@ func (g *Game) drawEnemies() {
 		} else if g.enemies[i].isShooting {
 			e := g.enemies[i]
 			g.world.DrawImage(e.animatedShootingSprite.GetCurrFrame(), op)
-			if e.shootFrameCount >= 5 {
+			if e.shootFrameCount >= 6 {
+				g.CreateBullet(e.x16, e.y16 + 4, e.looksLeft)
 				e.isShooting = false
 				e.changeAction()
 				e.shootFrameCount = 0;
