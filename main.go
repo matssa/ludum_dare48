@@ -39,7 +39,7 @@ const (
 	menu     = 2
 	gameOver = 3
 
-	gravity = 0.3
+	gravity      = 0.3
 	maxVelocityY = 5
 )
 
@@ -54,7 +54,6 @@ type Game struct {
 	layers [][]int
 	world  *ebiten.Image
 	camera Camera
-
 }
 
 func init() {
@@ -128,8 +127,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-        // Anything relative to world must be drawn on g.world before calling
-        // Render()
+	// Anything relative to world must be drawn on g.world before calling
+	// Render()
 	g.camera.Render(g.world, screen)
 
 }
@@ -145,28 +144,25 @@ func main() {
 	}
 	buildWorld(g)
 
-
 	// Create some tiles
 	posx := 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 100, "top"))
-		posx += TILE_SIZE;
+		posx += TILE_SIZE
 	}
 	tiles = append(tiles, NewTile(posx, 100, "top-right"))
 	posx = 64
 	tiles = append(tiles, NewTile(posx, 150, "top-left"))
 	for i := 0; i < 20; i++ {
-		posx += TILE_SIZE;
+		posx += TILE_SIZE
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
-		posx += TILE_SIZE;
+		posx += TILE_SIZE
 	}
 	tiles = append(tiles, NewTile(posx, 200, "top-right"))
-
-
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
