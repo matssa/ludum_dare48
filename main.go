@@ -20,6 +20,8 @@ import (
 	"fmt"
 	_ "image/png"
 	"log"
+	"time"
+	"math/rand"
 
 	"golang.org/x/image/math/f64"
 
@@ -64,6 +66,7 @@ type Game struct {
 }
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
 	initAnimation()
 	initBackgroundImg()
 	initWorldImg()
@@ -138,6 +141,66 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
+
+func createMap() [][]*Tile {
+	lines := make([][]*Tile, 0, 0)
+	startLine := make([]*Tile, 0, 0)
+	for i := 0; i < 40; i++ {
+		startLine = append(startLine, NewTile(
+			0 + i *16,
+			300,
+			"top"))
+	}
+	lines = append(lines, startLine)
+
+	numLines := rand.Intn(100 - 80) + 80;
+
+	lineLengths := make([]int, 0, 0);
+	for i := 0; i < numLines; i++ {
+		lineLengths = append(lineLengths, rand.Intn(10 - 3) + 3)
+	}
+	fmt.Printf("lengths %v", lineLengths);
+
+	prevx := 0
+	prevy := 300
+	lineXStarts := make([]int, 0, 0)
+	lineYStarts := make([]int, 0, 0)
+	for i := 0; i < numLines; i++ {
+		maxNewX := (prevx + (lineLengths[i] * 16)) + (5 * 16)
+		minNewX := (prevx + (lineLengths[i] * 16)) - (3 * 16)
+		maxNewY := prevy + (1 * 16)
+		minNewY := prevy - (1 * 16)
+		newX := rand.Intn(maxNewX - minNewX) + minNewX
+		newY := rand.Intn(maxNewY - minNewY) + minNewY
+		lineXStarts = append(lineXStarts, newX)
+		lineYStarts = append(lineYStarts, newY)
+		prevx = newX
+		prevy = newY
+	}
+	fmt.Printf("startx %v", lineXStarts);
+	fmt.Printf("starty %v", lineYStarts);
+
+	for i := 0; i < numLines; i++ {
+		myTiles := make(
+			[]*Tile,
+			0,
+			0)
+		for j := 0; j < lineLengths[i]; j++ {
+			myTiles = append(myTiles, NewTile(
+				lineXStarts[i] + (j * 16),
+				lineYStarts[i],
+				"top"))
+		}
+		lines = append(lines, myTiles)
+	}
+
+
+	return lines
+}
+
+
+
+
 func main() {
 	g := &Game{
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
@@ -147,24 +210,34 @@ func main() {
 	buildWorld(g)
 
 	// Create some tiles
-	posx := 0
-	for i := 0; i < 10; i++ {
-		tiles = append(tiles, NewTile(posx, 100, "top"))
-		posx += TILE_SIZE
+	// posx := 0
+	// for i := 0; i < 10; i++ {
+	// 	tiles = append(tiles, NewTile(posx, 100, "top"))
+	// 	posx += TILE_SIZE
+	// }
+	// tiles = append(tiles, NewTile(posx, 100, "top-right"))
+	// posx = 64
+	// tiles = append(tiles, NewTile(posx, 150, "top-left"))
+	// for i := 0; i < 20; i++ {
+	// 	posx += TILE_SIZE
+	// 	tiles = append(tiles, NewTile(posx, 150, "top"))
+	// }
+	// posx = 0
+	// for i := 0; i < 100; i++ {
+	// 	tiles = append(tiles, NewTile(posx, 200, "top"))
+	// 	posx += TILE_SIZE
+	// }
+	// tiles = append(tiles, NewTile(posx, 200, "top-right"))
+	tileLines := createMap();
+	//fmt.Printf("%v\n", tileLines)
+	for _, line := range tileLines {
+		for _, tile := range line {
+			//fmt.Printf("%v\n", tile)
+			tiles = append(tiles, tile)
+		}
 	}
-	tiles = append(tiles, NewTile(posx, 100, "top-right"))
-	posx = 64
-	tiles = append(tiles, NewTile(posx, 150, "top-left"))
-	for i := 0; i < 20; i++ {
-		posx += TILE_SIZE
-		tiles = append(tiles, NewTile(posx, 150, "top"))
-	}
-	posx = 0
-	for i := 0; i < 100; i++ {
-		tiles = append(tiles, NewTile(posx, 200, "top"))
-		posx += TILE_SIZE
-	}
-	tiles = append(tiles, NewTile(posx, 200, "top-right"))
+
+
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
