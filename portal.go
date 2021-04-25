@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -10,29 +8,34 @@ const portalSize = 64
 
 type Portal struct {
 	animatedSprite *AnimatedSprite
-	count          int
+	counter        int
 
 	// Portal position
 	x16 int
 	y16 int
 }
 
-func findPlacement(g *Game) {
-	return 0, 0
+func findPlacement() (int, int) {
+	for _, line := range tiles {
+		if line.posx > worldWidth-100 {
+			return line.posx, line.posy - 64
+		}
+	}
+	return 9500, 1150
 }
 
-func (g *Game) newPortal() *Portal {
-	portalSprite = NewAnimatedSprite(
+func (g *Game) createPortal() {
+	portalSprite := NewAnimatedSprite(
 		0,
 		0,
 		portalSize,
 		portalSize,
-		2,
+		4,
 		portalImage)
 
-	x, y := findPlacement(g)
+	x, y := findPlacement()
 
-	return &Portal{
+	g.portal = Portal{
 		animatedSprite: portalSprite,
 		x16:            x,
 		y16:            y,
@@ -40,12 +43,13 @@ func (g *Game) newPortal() *Portal {
 }
 
 func (g *Game) drawPortal() {
+	g.portal.counter++
 	op := &ebiten.DrawImageOptions{}
-	if g.player.looksLeft {
-		op.GeoM.Scale(-1, 1)
-		op.GeoM.Translate(float64(playerSprite.frameWidth), 0)
-	}
-	op.GeoM.Translate(float64(g.player.x16), float64(g.player.y16))
+	op.GeoM.Translate(float64(g.portal.x16), float64(g.portal.y16))
 	op.Filter = ebiten.FilterLinear
-	g.world.DrawImage(portalImage.SubImage(image.Rect(sx, sy, sx+tileSize, sy+tileSize)).(*ebiten.Image), op)
+	g.world.DrawImage(g.portal.animatedSprite.GetCurrFrame(), op)
+	if g.portal.counter >= 5 {
+		g.portal.animatedSprite.NextFrame()
+		g.portal.counter = 0
+	}
 }

@@ -61,6 +61,7 @@ type Game struct {
 	world         *ebiten.Image
 	camera        Camera
 	ominousClouds OminousClouds
+	portal        Portal
 }
 
 func init() {
@@ -115,10 +116,10 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawBackground()
 	g.drawWorld()
+	g.drawPortal()
 	g.drawCharacter()
 	g.drawEnemies()
 	g.DrawBullets()
-	g.drawPortal()
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
@@ -148,13 +149,12 @@ func main() {
 	buildWorld(g)
 
 	tileLines := createMap()
-	//fmt.Printf("%v\n", tileLines)
 	for _, line := range tileLines {
 		for _, tile := range line {
-			//fmt.Printf("%v\n", tile)
 			tiles = append(tiles, tile)
 		}
 	}
+	g.createPortal()
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebiten Demo)")

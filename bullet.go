@@ -52,7 +52,6 @@ func (g *Game) CreateBullet(posx int, posy int, goingLeft bool) {
 		animatedSprite: bulletAnimatedSprite,
 		expireAt:       time.Now().Add(time.Second * 3),
 	}
-	fmt.Print("Adding bullet %v", myNewBullet)
 	g.enemyBullets = append(g.enemyBullets, myNewBullet)
 }
 
