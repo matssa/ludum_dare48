@@ -77,3 +77,12 @@ func (tile Tile) PlayerCollide(p *Player) bool {
 
 	return ((playerLeftBorderInTile || playerRightBorderInTile) && playerBottomInTopPortionOfTile)
 }
+
+func (tile Tile) EnemyCollide(e *Enemy) bool {
+	enemyLeftBorderInTile := e.x16 >= tile.posx && e.x16 <= tile.posx+TILE_SIZE
+	enemyRightBorderInTile := e.x16+16 >= tile.posx && e.x16+16 <= tile.posx+TILE_SIZE
+	// Not sure why the numbers 8 and 4 work here.. the idea is to get a piece of the top portion of the tile. Those numbers seem to do the job.
+	enemyBottomInTopPortionOfTile := e.y16+16 >= tile.posy-8 && e.y16+16 <= tile.posy-4
+
+	return ((enemyLeftBorderInTile || enemyRightBorderInTile) && enemyBottomInTopPortionOfTile)
+}

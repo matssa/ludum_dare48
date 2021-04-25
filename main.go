@@ -59,7 +59,7 @@ type Game struct {
 
 func init() {
 	initAnimation()
-        initBackgroundImg()
+	initBackgroundImg()
 	initWorldImg()
 }
 
@@ -69,13 +69,9 @@ func (g *Game) Update() error {
 
 	switch g.gameMode {
 	case play:
-		// Gravity
-		g.player.vy16 += gravity
-		if g.player.vy16 > maxVelocityY {
-			g.player.vy16 = maxVelocityY
-		}
 
 		g.player.executeMovement()
+		g.executeEnemyMovement()
 
 	default:
 		g.gameMode = play
@@ -84,7 +80,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-        g.drawBackground()
+	g.drawBackground()
 	g.drawWorld()
 	g.drawCharacter()
 	g.drawEnemies()
