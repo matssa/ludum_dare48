@@ -12,10 +12,12 @@ import (
 )
 
 type Camera struct {
-	ViewPort   f64.Vec2
-	Position   f64.Vec2
-	ZoomFactor int
-	Rotation   int
+	ViewPort     f64.Vec2
+	Position     f64.Vec2
+	Velocity     f64.Vec2
+	Acceleration f64.Vec2
+	ZoomFactor   int
+	Rotation     int
 
 	drawDebug    bool
 	manualCamera bool
@@ -73,8 +75,25 @@ func (c *Camera) ScreenToWorld(posX, posY int) (float64, float64) {
 func (c *Camera) Reset() {
 	c.Position[0] = 0
 	c.Position[1] = 0
+	c.Velocity[0] = 0
+	c.Velocity[1] = 0
+	c.Acceleration[0] = 0
+	c.Acceleration[1] = 0
 	c.Rotation = 0
 	c.ZoomFactor = 0
+}
+
+func (c *Camera) physicsTick(g *Game) {
+	var damping float64 = 0.01
+
+	c.Acceleration[0] -= c.Velocity[0] * damping
+	c.Acceleration[1] -= c.Velocity[1] * damping
+
+	c.Velocity[0] += c.Acceleration[0]
+	c.Velocity[1] += c.Acceleration[1]
+
+	c.Position[0] += c.Velocity[0]
+	c.Position[1] += c.Velocity[1]
 }
 
 func (c *Camera) followCharacter(g *Game) {
@@ -84,18 +103,40 @@ func (c *Camera) followCharacter(g *Game) {
 	worldMatrix := c.worldMatrix()
 	characterScreenPosX, characterScreenPosY := worldMatrix.Apply(float64(cx), float64(cy))
 
-	if characterScreenPosX > 0.7*screenWidth {
-		c.Position[0] += 4
+	var rulerLeft = 0.4 * screenWidth
+	var rulerRight = 0.6 * screenWidth
+
+	// Y is from top, i.e. larger Y -> lower screen pos
+	var rulerTop = 0.4 * screenHeight
+	var rulerBottom = 0.6 * screenHeight
+
+	var overStepX float64 = 0
+	var overStepY float64 = 0
+
+	// Reset acceleration
+	c.Acceleration[0] = 0
+	c.Acceleration[0] = 0
+
+	if characterScreenPosX > rulerRight {
+		overStepX = characterScreenPosX - rulerRight
+		c.Acceleration[0] = overStepX / 16
 	}
-	if characterScreenPosX < 0.3*screenWidth {
-		c.Position[0] -= 4
+	if characterScreenPosX < rulerLeft {
+		overStepX = rulerLeft - characterScreenPosX
+		c.Acceleration[0] = -overStepX / 16
 	}
-	if characterScreenPosY > 0.5*screenHeight {
-		c.Position[1] += 4
+	if characterScreenPosY > rulerBottom {
+		overStepY = characterScreenPosY - rulerBottom
+		c.Acceleration[1] = overStepY / 16
 	}
-	if characterScreenPosY < 0.3*screenHeight {
-		c.Position[1] -= 4
+	if characterScreenPosY < rulerTop {
+		overStepY = rulerTop - characterScreenPosY
+		c.Acceleration[1] = -overStepY / 16
 	}
+
+	// var damping float64 = 1
+	c.Velocity[0] = c.Velocity[0] - 0.5*c.Velocity[0]
+	c.Velocity[1] = c.Velocity[1] - 0.5*c.Velocity[1]
 }
 
 func (c *Camera) toggleDebug() {
@@ -118,8 +159,8 @@ func (c *Camera) renderCameraDebug(screen *ebiten.Image) {
 	)
 }
 
+// manuallyControl controls the camera based on key input
 func (c *Camera) manuallyControl() {
-	// Manual controls in debug mode
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		c.Position[0] -= 1
 	}
@@ -154,6 +195,7 @@ func (c *Camera) manuallyControl() {
 }
 
 func (c *Camera) update(g *Game) {
+
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
 		c.toggleDebug()
 	}
@@ -162,6 +204,7 @@ func (c *Camera) update(g *Game) {
 	}
 
 	if !c.manualCamera {
+		c.physicsTick(g)
 		c.followCharacter(g)
 	} else {
 		c.manuallyControl()
