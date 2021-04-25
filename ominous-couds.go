@@ -58,6 +58,7 @@ type OminousCloud struct {
 
 type OminousClouds struct {
 	clouds *list.List
+	createNewClouds bool
 }
 
 func (s *OminousCloud) update() {
@@ -129,6 +130,7 @@ func NewOminousCloud(img *ebiten.Image) *OminousCloud {
 		angle: a,
 		scale: s,
 		alpha: 0.1,
+
 	}
 }
 
@@ -138,9 +140,11 @@ func (o *OminousClouds) UpdateClouds() error {
 	}
 	fmt.Printf("%v", o.clouds);
 
-	if o.clouds.Len() < 500 && rand.Intn(4) < 3 {
-		// Emit
-		o.clouds.PushBack(NewOminousCloud(smokeImage))
+	if o.createNewClouds {
+	    if o.clouds.Len() < 500 && rand.Intn(4) < 3 {
+		    // Emit
+		    o.clouds.PushBack(NewOminousCloud(smokeImage))
+	    }
 	}
 
 	for e := o.clouds.Front(); e != nil; e = e.Next() {
@@ -160,6 +164,9 @@ func (o OminousClouds) DrawClouds(screen *ebiten.Image) {
 	}
 }
 
-func (o *OminousClouds) KillClouds() {
-	o.clouds = list.New()
+func (o *OminousClouds) StopClouds() {
+	o.createNewClouds = false
+}
+func (o *OminousClouds) StartClouds() {
+	o.createNewClouds = true
 }

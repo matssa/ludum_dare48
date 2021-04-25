@@ -67,7 +67,12 @@ func init() {
 
 func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
-		runClouds = !runClouds
+		runClouds = true
+		g.ominousClouds.StartClouds()
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyP) {
+		runClouds = false
+		g.ominousClouds.StopClouds()
 	}
 
 	g.camera.update(g)
@@ -82,9 +87,9 @@ func (g *Game) Update() error {
 		g.gameMode = play
 	}
 
-	if runClouds {
-		g.ominousClouds.UpdateClouds()
-	}
+
+	g.ominousClouds.UpdateClouds()
+
 	return nil
 }
 
@@ -102,9 +107,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	if runClouds {
-		g.ominousClouds.DrawClouds(g.world)
-	}
+	g.ominousClouds.DrawClouds(g.world)
 
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
