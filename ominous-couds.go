@@ -3,7 +3,6 @@ package main
 
 import (
 	"container/list"
-	"fmt"
 	"image"
 	// 	"image/color"
 	_ "image/png"
