@@ -118,6 +118,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawCharacter()
 	g.drawEnemies()
 	g.DrawBullets()
+	g.drawPortal()
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {

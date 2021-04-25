@@ -13,13 +13,14 @@ var (
 	runnerImage        *ebiten.Image
 	idleImage          *ebiten.Image
 	attackImage        *ebiten.Image
-	playerSprite     *AnimatedSprite
-	playerIdleSprite *AnimatedSprite
+	playerSprite       *AnimatedSprite
+	playerIdleSprite   *AnimatedSprite
 	playerAttackSprite *AnimatedSprite
 	runnerEnemyImage   *ebiten.Image
 	idleEnemyImage     *ebiten.Image
-	shootingEnemyImage     *ebiten.Image
-	enemyBulletImage *ebiten.Image
+	shootingEnemyImage *ebiten.Image
+	enemyBulletImage   *ebiten.Image
+	portalImage        *ebiten.Image
 )
 
 type AnimatedSprite struct {
@@ -62,6 +63,10 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	portal, err := ebitenutil.OpenFile("./resources/sprites/portal.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	img, _, err := image.Decode(running)
 	if err != nil {
 		log.Fatal(err)
@@ -90,6 +95,10 @@ func initAnimation() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	imgPortal, _, err := image.Decode(portal)
+	if err != nil {
+		log.Fatal(err)
+	}
 	runnerImage = ebiten.NewImageFromImage(img)
 	idleImage = ebiten.NewImageFromImage(imgIdle)
 	attackImage = ebiten.NewImageFromImage(imgAttack)
@@ -97,6 +106,7 @@ func initAnimation() {
 	idleEnemyImage = ebiten.NewImageFromImage(imgIdleEnemy)
 	shootingEnemyImage = ebiten.NewImageFromImage(imgShootingEnemy)
 	enemyBulletImage = ebiten.NewImageFromImage(imgEnemyBullet)
+	portalImage = ebiten.NewImageFromImage(imgPortal)
 	playerSprite = NewAnimatedSprite(
 		0,
 		0,
@@ -147,5 +157,5 @@ func (a *AnimatedSprite) NextFrame() {
 }
 
 func (a *AnimatedSprite) ResetSprite() {
-	a.currFrameNum = 0;
+	a.currFrameNum = 0
 }
