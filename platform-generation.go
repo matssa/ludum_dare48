@@ -36,12 +36,14 @@ func createLine(length int, startX int, startY int) []*Tile {
 }
 
 func createMap() [][]*Tile {
+	firstLineX := 500
+	firstLineY := 1200
 	lines := make([][]*Tile, 0, 0)
 	startLine := make([]*Tile, 0, 0)
 	for i := 0; i < 10; i++ {
 		startLine = append(startLine, NewTile(
-			0 + i *16,
-			1200,
+			firstLineX + i *16,
+			firstLineY,
 			"top"))
 	}
 	lines = append(lines, startLine)
@@ -54,8 +56,8 @@ func createMap() [][]*Tile {
 	}
 	fmt.Printf("lengths %v", lineLengths);
 
-	prevx := 0
-	prevy := 1200
+	prevx := firstLineX
+	prevy := firstLineY
 	lineXStarts := make([]int, 0, 0)
 	lineYStarts := make([]int, 0, 0)
 	for i := 0; i < numLines; i++ {

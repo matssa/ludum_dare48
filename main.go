@@ -121,7 +121,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// sx, sy := frameOX+i*frameWidth, 0
 	if g.gameMode == play {
-		DrawOverlay(g.world, g.player.health)
 		for _, tile := range tiles {
 			tile.DrawTile(g.world)
 		}
@@ -132,6 +131,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
 	g.camera.Render(g.world, screen)
+	DrawOverlay(screen, g.player.health)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -142,7 +142,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
-		player: Player{health: 100, count: 0, hasTurned: false},
+		player: Player{health: 100, count: 0, hasTurned: false, x16: 500, y16: 500},
 	}
 	g.createEnemies(2)
 	buildWorld(g)

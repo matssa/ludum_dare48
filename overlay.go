@@ -70,7 +70,7 @@ func DrawOverlay(screen *ebiten.Image, health int) {
 	{
 		_, height := screen.Size()
 		x, y := 20, height-10
-		myText := "press w to jump."
+		myText := "move: wasd, attack: y, camera: v, debug: c"
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
 		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
