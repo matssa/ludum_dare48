@@ -148,19 +148,19 @@ func main() {
 	posx := 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 100, "top"))
-		posx += 16;
+		posx += TILE_SIZE;
 	}
 	tiles = append(tiles, NewTile(posx, 100, "top-right"))
 	posx = 64
 	tiles = append(tiles, NewTile(posx, 150, "top-left"))
 	for i := 0; i < 20; i++ {
-		posx += 16;
+		posx += TILE_SIZE;
 		tiles = append(tiles, NewTile(posx, 150, "top"))
 	}
 	posx = 0
 	for i := 0; i < 10; i++ {
 		tiles = append(tiles, NewTile(posx, 200, "top"))
-		posx += 16;
+		posx += TILE_SIZE;
 	}
 	tiles = append(tiles, NewTile(posx, 200, "top-right"))
 
