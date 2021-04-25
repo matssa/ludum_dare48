@@ -59,6 +59,7 @@ type Game struct {
 
 func init() {
 	initAnimation()
+        initBackgroundImg()
 	initWorldImg()
 }
 
@@ -83,6 +84,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+        g.drawBackground()
 	g.drawWorld()
 	g.drawCharacter()
 	g.drawEnemies()
