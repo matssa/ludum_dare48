@@ -131,7 +131,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
 	g.camera.Render(g.world, screen)
-	DrawOverlay(screen, g.player.health)
+	DrawOverlay(screen, g.player.health, len(g.enemies))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
