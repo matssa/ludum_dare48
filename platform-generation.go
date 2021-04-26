@@ -107,12 +107,10 @@ func createMap() [][]*Tile {
 
 			extraNewX := rand.Intn(extraMaxNewX-extraMinNewX) + extraMinNewX
 			if extraNewX < borderLimit || extraNewX > worldWidth-borderLimit {
-				fmt.Printf("happened x\n");
 				continue
 			}
 			extraNewY := rand.Intn(extraMaxNewY-extraMinNewY) + extraMinNewY
 			if extraNewY < borderLimit || extraNewY > (worldHeight-400-borderLimit) {
-				fmt.Printf("happened x\n");
 				continue;
 			}
 			extraNewX = roundToTileSize(extraNewX)

@@ -27,7 +27,7 @@ func main() {
 	g.createPortal()
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
-	ebiten.SetWindowTitle("Animation (Ebiten Demo)")
+	ebiten.SetWindowTitle("CyberSchmunk 2077")
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
