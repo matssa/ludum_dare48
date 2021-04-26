@@ -47,6 +47,10 @@ type Game struct {
 	camera        Camera
 	ominousClouds OminousClouds
 	portal        Portal
+
+	gameOver      bool
+	playerWon     bool
+	timeToExit    time.Time
 }
 
 func init() {
@@ -66,6 +70,10 @@ func calcAliveEnemies(enemies []*Enemy) int {
 }
 
 func (g *Game) Update() error {
+	if (g.gameOver || g.playerWon) && time.Now().After(g.timeToExit) {
+		os.Exit(0)
+	}
+
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
 		runClouds = true
 		g.ominousClouds.StartClouds()
@@ -111,19 +119,21 @@ func (g *Game) Update() error {
 		g.createEnemies(totNumEnemies - aliveEnemies);
 	}
 
-	if g.player.y16 > 1700 {
-		fmt.Printf("\n\nYou lost...\n\n")
-		os.Exit(0)
-	}
+	if !g.playerWon && !g.gameOver {
+	    if g.player.y16 > 1700 {
+		    g.gameOver = true
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+	    }
 
-	if g.player.health <= 0 {
-		fmt.Printf("\n\nYou lost...\n\n")
-		os.Exit(0)
-	}
+	    if g.player.health <= 0 {
+		    g.gameOver = true
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+	    }
 
-	if g.player.x16 >= g.portal.x16 {
-		fmt.Printf("\n\nYou won!\n\n")
-		os.Exit(0)
+	    if g.player.x16 >= g.portal.x16 {
+		    g.playerWon = true
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+	    }
 	}
 
 	return nil
@@ -158,7 +168,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Render()
 	g.camera.Render(g.world, screen)
 	numAliveEnemies := calcAliveEnemies(g.enemies)
-	DrawOverlay(screen, g.player.health, numAliveEnemies)
+
+	DrawOverlay(screen, g.player.health, numAliveEnemies, g)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

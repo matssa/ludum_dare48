@@ -59,7 +59,7 @@ func createInfoString(health int, maxHealth int) string {
 	return fmt.Sprintf("health %d / %d\n", health, maxHealth)
 }
 
-func DrawOverlay(screen *ebiten.Image, health int, enemies int) {
+func DrawOverlay(screen *ebiten.Image, health int, enemies int, game *Game) {
 	transparentGray := color.RGBA{0x80, 0x80, 0x80, 0x55}
 	{
 		const x, y = 10, 20
@@ -75,5 +75,25 @@ func DrawOverlay(screen *ebiten.Image, health int, enemies int) {
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
 		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+	}
+	{
+		width, height := screen.Size()
+		x, y := width/2, height/2
+		myText := "GAME OVER"
+		b := text.BoundString(mplusNormalFont, myText)
+		if game.gameOver {
+			ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
+			text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+		}
+	}
+	{
+		width, height := screen.Size()
+		x, y := width/2, height/2
+		myText := "YOU WON"
+		b := text.BoundString(mplusNormalFont, myText)
+		if game.playerWon {
+			ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
+			text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+		}
 	}
 }

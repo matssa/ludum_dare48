@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -88,8 +87,6 @@ func createMap() [][]*Tile {
 		prevx = newX
 		prevy = newY
 	}
-	fmt.Printf("startx %v", lineXStarts)
-	fmt.Printf("starty %v", lineYStarts)
 
 	for i := 0; i < numLines; i++ {
 		lines = append(lines, createLine(lineLengths[i], lineXStarts[i], lineYStarts[i]))
