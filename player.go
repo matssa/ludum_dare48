@@ -148,8 +148,8 @@ func (p *Player) updatePlayer() {
 
 func (p *Player) pushAway(angle float64) {
 	deg := angle * 180 / math.Pi
-	p.vx16 += math.Cos(deg) * 3
-	p.vy16 += math.Sin(deg) * 3
+	p.vx16 += math.Cos(deg) * 2
+	p.vy16 += math.Sin(deg) * 2
 }
 
 func (g *Game) isPlayerHit() bool {
@@ -188,13 +188,8 @@ func (g *Game) drawCharacter() {
 	}
 	op.GeoM.Translate(float64(g.player.x16), float64(g.player.y16))
 	op.Filter = ebiten.FilterLinear
-	if g.player.isResting {
-		g.world.DrawImage(playerIdleSprite.GetCurrFrame(), op)
-		if g.player.restingCount >= 10 {
-			g.player.restingCount = 0
-			playerIdleSprite.NextFrame()
-		}
-	} else if g.player.isAttacking {
+	if g.player.isAttacking {
+		g.player.vx16 = 0
 		g.world.DrawImage(playerAttackSprite.GetCurrFrame(), op)
 		if g.player.attackFramesCount == 3 && !g.player.attackedThisAnimation {
 			g.player.attack(g)
@@ -210,6 +205,12 @@ func (g *Game) drawCharacter() {
 			g.player.attackFramesCount += 1
 			g.player.count = 0
 			playerAttackSprite.NextFrame()
+		}
+	} else if g.player.isResting {
+		g.world.DrawImage(playerIdleSprite.GetCurrFrame(), op)
+		if g.player.restingCount >= 10 {
+			g.player.restingCount = 0
+			playerIdleSprite.NextFrame()
 		}
 	} else {
 		g.world.DrawImage(playerSprite.GetCurrFrame(), op)
