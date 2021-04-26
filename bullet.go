@@ -69,9 +69,11 @@ func (g *Game) UpdateBullets() {
 			bullet.posx += BULLET_VELOCITY
 		}
 
-		if bullet.IsPlayerHit(g.player) {
+		if !g.player.invulnerable && bullet.IsPlayerHit(g.player) {
 			g.player.health -= 1
 			bullet.isDestroyed = true
+			g.player.invulnerable = true
+			g.player.lastInvulnerableStart = time.Now()
 		}
 	}
 }

@@ -1,10 +1,16 @@
 package main
 
 import (
+	"time"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+)
+
+
+const (
+	INVULNERABLE_TIME = 2
 )
 
 type Player struct {
@@ -19,6 +25,9 @@ type Player struct {
 	looksLeft             bool
 	canJump               bool
 	isDigging             bool
+
+	invulnerable          bool
+	lastInvulnerableStart time.Time
 
 	// Character position
 	x16  int
@@ -86,7 +95,11 @@ func (p *Player) dig() {
 	}
 }
 
-func (p *Player) executeMovement() {
+func (p *Player) updatePlayer() {
+	if p.invulnerable && time.Now().Unix() - p.lastInvulnerableStart.Unix() >= INVULNERABLE_TIME {
+		p.invulnerable = false
+	}
+
 	// Gravity
 	p.vy16 += gravity
 	if p.vy16 > maxVelocityY {
@@ -150,7 +163,11 @@ func (g *Game) isPlayerHit() bool {
 			deltaX := float64(g.player.x16 - e.x16)
 			deltaY := float64(e.y16 - g.player.y16)
 			angle = math.Atan2(deltaY, deltaX)
-			g.player.health -= 1
+			if (!g.player.invulnerable) {
+				g.player.health -= 1
+				g.player.invulnerable = true
+				g.player.lastInvulnerableStart = time.Now()
+			}
 			g.player.pushAway(angle)
 		}
 	}

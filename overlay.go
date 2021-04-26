@@ -55,15 +55,15 @@ func init() {
 	}
 }
 
-func createInfoString(health int, maxHealth int, enemies int) string {
-	return fmt.Sprintf("health %d / %d, enemies left: %d", health, maxHealth, enemies)
+func createInfoString(health int, maxHealth int) string {
+	return fmt.Sprintf("health %d / %d\n", health, maxHealth)
 }
 
 func DrawOverlay(screen *ebiten.Image, health int, enemies int) {
 	transparentGray := color.RGBA{0x80, 0x80, 0x80, 0x55}
 	{
 		const x, y = 10, 20
-		myText := createInfoString(health, maxHealth, enemies)
+		myText := createInfoString(health, maxHealth)
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
 		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)

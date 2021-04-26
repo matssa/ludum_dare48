@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"fmt"
 	_ "image/png"
 	"os"
@@ -84,7 +85,7 @@ func (g *Game) Update() error {
 	switch g.gameMode {
 	case play:
 
-		g.player.executeMovement()
+		g.player.updatePlayer()
 		g.UpdateEnemies()
 		g.UpdateBullets()
 		if g.isPlayerHit() {
@@ -132,7 +133,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawBackground()
 	g.drawWorld()
 	g.drawPortal()
-	g.drawCharacter()
+	if g.player.invulnerable {
+		nanoseconds := (time.Now().UnixNano() - g.player.lastInvulnerableStart.UnixNano())
+		milliseconds := nanoseconds / 1000000
+		if (milliseconds % 100 > 50) {
+			g.drawCharacter()
+		}
+	} else {
+		g.drawCharacter()
+	}
 	g.drawEnemies()
 	g.DrawBullets()
 
