@@ -19,7 +19,8 @@ type EnemyBullet struct {
 }
 
 const (
-	BULLET_VELOCITY = 7
+	BULLET_VELOCITY = 9
+	BULLET_EXPIRE_MILLISECONDS = 700
 )
 
 var (
@@ -49,7 +50,7 @@ func (g *Game) CreateBullet(posx int, posy int, goingLeft bool) {
 		posy:           posy,
 		goingLeft:      goingLeft,
 		animatedSprite: bulletAnimatedSprite,
-		expireAt:       time.Now().Add(time.Second * 3),
+		expireAt:       time.Now().Add(time.Duration(time.Millisecond) * BULLET_EXPIRE_MILLISECONDS),
 	}
 	g.enemyBullets = append(g.enemyBullets, myNewBullet)
 }
