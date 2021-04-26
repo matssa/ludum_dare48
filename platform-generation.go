@@ -53,7 +53,6 @@ func createMap() [][]*Tile {
 	for i := 0; i < numLines; i++ {
 		lineLengths = append(lineLengths, rand.Intn(10-3)+3)
 	}
-	fmt.Printf("lengths %v", lineLengths)
 
 	prevx := firstLineX
 	prevy := firstLineY
