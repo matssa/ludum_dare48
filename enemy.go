@@ -191,6 +191,10 @@ func (g *Game) UpdateEnemies() {
 		if !e.isAlive {
 			continue
 		}
+		if e.y16 > 3000 {
+			e.isAlive = false
+			continue
+		}
 		// Gravity
 		e.vy16 += gravity
 		if e.vy16 > maxVelocityY {

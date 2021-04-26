@@ -1,3 +1,5 @@
+package main
+
 // Copyright 2018 The Ebiten Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +15,6 @@
 // limitations under the License.
 
 // +build example
-
-package main
 
 import (
 	"fmt"
@@ -146,7 +146,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
 	g.camera.Render(g.world, screen)
-	DrawOverlay(screen, g.player.health, len(g.enemies))
+	numAliveEnemies := 0
+	for _, enemy := range g.enemies {
+		if enemy.isAlive {
+			numAliveEnemies += 1
+		}
+	}
+	DrawOverlay(screen, g.player.health, numAliveEnemies)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
