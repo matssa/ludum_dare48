@@ -34,79 +34,28 @@ type AnimatedSprite struct {
 	currFrameNum int
 }
 
+func ebitenImageFromPath(path string) *ebiten.Image {
+	openFile, err := ebitenutil.OpenFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	img, _, err := image.Decode(openFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return ebiten.NewImageFromImage(img)
+}
+
 func initAnimation() {
-	running, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-running.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	idle, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-idle.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	attack, err := ebitenutil.OpenFile("./resources/sprites/Squirrel-attack.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	runningEnemy, err := ebitenutil.OpenFile("./resources/sprites/enemy-chipmunk-running.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	idleEnemy, err := ebitenutil.OpenFile("./resources/sprites/enemy-chipmunk-idle.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	shootingEnemy, err := ebitenutil.OpenFile("./resources/sprites/enemy-chipmunk-attack.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	enemyBullet, err := ebitenutil.OpenFile("./resources/sprites/enemy-bullet.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	portal, err := ebitenutil.OpenFile("./resources/sprites/portal.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	img, _, err := image.Decode(running)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgIdle, _, err := image.Decode(idle)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgAttack, _, err := image.Decode(attack)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgEnemy, _, err := image.Decode(runningEnemy)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgIdleEnemy, _, err := image.Decode(idleEnemy)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgShootingEnemy, _, err := image.Decode(shootingEnemy)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgEnemyBullet, _, err := image.Decode(enemyBullet)
-	if err != nil {
-		log.Fatal(err)
-	}
-	imgPortal, _, err := image.Decode(portal)
-	if err != nil {
-		log.Fatal(err)
-	}
-	runnerImage = ebiten.NewImageFromImage(img)
-	idleImage = ebiten.NewImageFromImage(imgIdle)
-	attackImage = ebiten.NewImageFromImage(imgAttack)
-	runnerEnemyImage = ebiten.NewImageFromImage(imgEnemy)
-	idleEnemyImage = ebiten.NewImageFromImage(imgIdleEnemy)
-	shootingEnemyImage = ebiten.NewImageFromImage(imgShootingEnemy)
-	enemyBulletImage = ebiten.NewImageFromImage(imgEnemyBullet)
-	portalImage = ebiten.NewImageFromImage(imgPortal)
+	runnerImage = ebitenImageFromPath("./resources/sprites/Squirrel-running.png")
+	idleImage = ebitenImageFromPath("./resources/sprites/Squirrel-idle.png")
+	attackImage = ebitenImageFromPath("./resources/sprites/Squirrel-attack.png")
+	runnerEnemyImage = ebitenImageFromPath("./resources/sprites/enemy-chipmunk-running.png")
+	idleEnemyImage = ebitenImageFromPath("./resources/sprites/enemy-chipmunk-idle.png")
+	shootingEnemyImage = ebitenImageFromPath("./resources/sprites/enemy-chipmunk-attack.png")
+	enemyBulletImage = ebitenImageFromPath("./resources/sprites/enemy-bullet.png")
+	portalImage = ebitenImageFromPath("./resources/sprites/portal.png")
+
 	playerSprite = NewAnimatedSprite(
 		0,
 		0,
