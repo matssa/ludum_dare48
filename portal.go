@@ -17,7 +17,7 @@ type Portal struct {
 
 func findPlacement() (int, int) {
 	for _, line := range tiles {
-		if line.posx > worldWidth-100 {
+		if line.posx > worldWidth-1000 {
 			return line.posx, line.posy - 64
 		}
 	}

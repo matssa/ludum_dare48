@@ -48,7 +48,7 @@ func createMap() [][]*Tile {
 	}
 	lines = append(lines, startLine)
 
-	numLines := rand.Intn(100 - 80) + 80;
+	numLines := rand.Intn(200 - 150) + 150;
 
 	lineLengths := make([]int, 0, 0);
 	for i := 0; i < numLines; i++ {
@@ -61,8 +61,8 @@ func createMap() [][]*Tile {
 	lineXStarts := make([]int, 0, 0)
 	lineYStarts := make([]int, 0, 0)
 	for i := 0; i < numLines; i++ {
-		maxNewX := (prevx + (lineLengths[i] * 16)) + (5 * 16)
-		minNewX := (prevx + (lineLengths[i] * 16)) - (3 * 16)
+		maxNewX := (prevx + (lineLengths[i] * 16)) + (3 * 16)
+		minNewX := (prevx + (lineLengths[i] * 16)) - (2 * 16)
 		maxNewY := prevy + (3 * 16)
 		minNewY := prevy - (3 * 16)
 
