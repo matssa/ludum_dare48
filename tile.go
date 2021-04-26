@@ -11,30 +11,33 @@ import (
 
 const TILE_SIZE = 16
 
+var (
+	tileImage *ebiten.Image
+)
+
 type Tile struct {
 	posx            int
 	posy            int
 	sprite_selector string // String for selecting what tile to draw. Example: "top" or "top-right" etc.
+}
 
-	open_image *ebiten.Image // The actual sprite. Shouldnt be used outside this file.
+func init() {
+	tmp, err := ebitenutil.OpenFile("./resources/sprites/tile-map.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	img, _, err := image.Decode(tmp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tileImage = ebiten.NewImageFromImage(img)
 }
 
 func NewTile(posx int, posy int, sprite_selector string) *Tile {
-	tileimage, err := ebitenutil.OpenFile("./resources/sprites/tile-map.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	img, _, err := image.Decode(tileimage)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tileImage := ebiten.NewImageFromImage(img)
-
 	return &Tile{
 		posx:            posx,
 		posy:            posy,
 		sprite_selector: sprite_selector,
-		open_image:      tileImage,
 	}
 }
 
@@ -57,7 +60,7 @@ func (t Tile) DrawTile(screen *ebiten.Image) {
 		log.Fatal("sprite selector not implemented yet")
 	}
 
-	subimg := t.open_image.SubImage(image.Rect(
+	subimg := tileImage.SubImage(image.Rect(
 		startx,
 		starty,
 		startx+TILE_SIZE,
