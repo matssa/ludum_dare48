@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -19,28 +18,26 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-
 var smokeImage *ebiten.Image
 
 const (
 	CLOUDS_MOVEMENT_DAMPING = 0.3
-	CLOUDS_MAX_NUM = 500
+	CLOUDS_MAX_NUM          = 500
 )
 
 func init() {
-	myimg, err := ebitenutil.OpenFile("./resources/sprites/ominous-cloud.png");
+	myimg, err := ebitenutil.OpenFile("./resources/sprites/ominous-cloud.png")
 	img, _, err := image.Decode(myimg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	smokeImage = ebiten.NewImageFromImage(img)
-	
+
 }
 
 func randInRange(min int, max int) int {
-    return rand.Intn(max - min) + min;
+	return rand.Intn(max-min) + min
 }
-
 
 type OminousCloud struct {
 	count    int
@@ -56,7 +53,7 @@ type OminousCloud struct {
 }
 
 type OminousClouds struct {
-	clouds *list.List
+	clouds          *list.List
 	createNewClouds bool
 }
 
@@ -114,8 +111,8 @@ func NewOminousCloud(img *ebiten.Image) *OminousCloud {
 	dir := rand.Float64() * 2 * math.Pi
 	a := rand.Float64() * 2 * math.Pi
 	s := rand.Float64()*1 + 0.4
-	posx := randInRange(-300, 300);
-	posy := randInRange(-300, 300);
+	posx := randInRange(-300, 300)
+	posy := randInRange(-300, 300)
 	return &OminousCloud{
 		img: img,
 
@@ -123,13 +120,12 @@ func NewOminousCloud(img *ebiten.Image) *OminousCloud {
 		count:    c,
 		dir:      dir,
 
-		posx : posx,
-		posy : posy,
+		posx: posx,
+		posy: posy,
 
 		angle: a,
 		scale: s,
 		alpha: 0.1,
-
 	}
 }
 
@@ -139,10 +135,10 @@ func (o *OminousClouds) UpdateClouds() error {
 	}
 
 	if o.createNewClouds {
-	    if o.clouds.Len() < 500 && rand.Intn(4) < 3 {
-		    // Emit
-		    o.clouds.PushBack(NewOminousCloud(smokeImage))
-	    }
+		if o.clouds.Len() < 500 && rand.Intn(4) < 3 {
+			// Emit
+			o.clouds.PushBack(NewOminousCloud(smokeImage))
+		}
 	}
 
 	for e := o.clouds.Front(); e != nil; e = e.Next() {

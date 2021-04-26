@@ -8,17 +8,17 @@ import (
 )
 
 type Player struct {
-	health       int
-	count        int
-	restingCount int
-	isResting    bool
-	isAttacking  bool
-	attackFramesCount int
+	health                int
+	count                 int
+	restingCount          int
+	isResting             bool
+	isAttacking           bool
+	attackFramesCount     int
 	attackedThisAnimation bool
-	hasTurned    bool
-	looksLeft    bool
-	canJump      bool
-	isDigging    bool
+	hasTurned             bool
+	looksLeft             bool
+	canJump               bool
+	isDigging             bool
 
 	// Character position
 	x16  int
@@ -62,9 +62,9 @@ func (p *Player) attack(g *Game) {
 	for _, enemy := range g.enemies {
 		playerMidX := p.x16 + 16
 		playerMidY := p.y16
-		inX := playerMidX + aggr >= enemy.x16 && playerMidX - aggr <= enemy.x16 + 32
-		inY := playerMidY + aggr >= enemy.y16 && playerMidY - aggr <= enemy.y16 + 32
-		if (inX && inY) {
+		inX := playerMidX+aggr >= enemy.x16 && playerMidX-aggr <= enemy.x16+32
+		inY := playerMidY+aggr >= enemy.y16 && playerMidY-aggr <= enemy.y16+32
+		if inX && inY {
 			enemy.isAlive = false
 		}
 	}
@@ -137,8 +137,8 @@ func (g *Game) isPlayerHit() bool {
 	hasHit := false
 	angle := float64(0)
 	for _, e := range g.enemies {
-		if (!e.isAlive) {
-			continue;
+		if !e.isAlive {
+			continue
 		}
 		isInX1 := g.player.x16+16 >= e.x16 && g.player.x16+16 <= e.x16+32
 		isInX2 := g.player.x16-16 >= e.x16-32 && g.player.x16 <= e.x16
@@ -175,16 +175,16 @@ func (g *Game) drawCharacter() {
 		g.world.DrawImage(playerAttackSprite.GetCurrFrame(), op)
 		if g.player.attackFramesCount == 3 && !g.player.attackedThisAnimation {
 			g.player.attack(g)
-			g.player.attackedThisAnimation = true;
+			g.player.attackedThisAnimation = true
 		}
 		if g.player.attackFramesCount >= 6 {
 			g.player.isAttacking = false
 			g.player.isResting = true
-			g.player.attackFramesCount = 0;
-			g.player.attackedThisAnimation = false;
+			g.player.attackFramesCount = 0
+			g.player.attackedThisAnimation = false
 			playerAttackSprite.ResetSprite()
 		} else if g.player.count >= 5 {
-			g.player.attackFramesCount += 1;
+			g.player.attackFramesCount += 1
 			g.player.count = 0
 			playerAttackSprite.NextFrame()
 		}

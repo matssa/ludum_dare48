@@ -2,37 +2,36 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"math/rand"
+	"time"
 )
-
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 func createLine(length int, startX int, startY int) []*Tile {
-    myTiles := make(
-	    []*Tile,
-	    0,
-	    0)
-    myTiles = append(myTiles, NewTile(
-	    startX,
-	    startY,
-	    "top-left"))
-    for j := 1; j < length - 1; j++ {
-	    myTiles = append(myTiles, NewTile(
-		    startX + (j * 16),
-		    startY,
-		    "top"))
-    }
+	myTiles := make(
+		[]*Tile,
+		0,
+		0)
+	myTiles = append(myTiles, NewTile(
+		startX,
+		startY,
+		"top-left"))
+	for j := 1; j < length-1; j++ {
+		myTiles = append(myTiles, NewTile(
+			startX+(j*16),
+			startY,
+			"top"))
+	}
 
-    lastLineLength := length - 1
-    myTiles = append(myTiles, NewTile(
-	    startX + ((lastLineLength) * 16),
-	    startY,
-	    "top-right"))
-    return myTiles;
+	lastLineLength := length - 1
+	myTiles = append(myTiles, NewTile(
+		startX+((lastLineLength)*16),
+		startY,
+		"top-right"))
+	return myTiles
 }
 
 func createMap() [][]*Tile {
@@ -42,19 +41,19 @@ func createMap() [][]*Tile {
 	startLine := make([]*Tile, 0, 0)
 	for i := 0; i < 10; i++ {
 		startLine = append(startLine, NewTile(
-			firstLineX + i *16,
+			firstLineX+i*16,
 			firstLineY,
 			"top"))
 	}
 	lines = append(lines, startLine)
 
-	numLines := rand.Intn(200 - 150) + 150;
+	numLines := rand.Intn(200-150) + 150
 
-	lineLengths := make([]int, 0, 0);
+	lineLengths := make([]int, 0, 0)
 	for i := 0; i < numLines; i++ {
-		lineLengths = append(lineLengths, rand.Intn(10 - 3) + 3)
+		lineLengths = append(lineLengths, rand.Intn(10-3)+3)
 	}
-	fmt.Printf("lengths %v", lineLengths);
+	fmt.Printf("lengths %v", lineLengths)
 
 	prevx := firstLineX
 	prevy := firstLineY
@@ -71,18 +70,18 @@ func createMap() [][]*Tile {
 		var newX int
 		if minNewX < borderLimit {
 			newX = maxNewX
-		} else if maxNewX > worldWidth - borderLimit {
+		} else if maxNewX > worldWidth-borderLimit {
 			newX = minNewX
 		} else {
-		newX = rand.Intn(maxNewX - minNewX) + minNewX
+			newX = rand.Intn(maxNewX-minNewX) + minNewX
 		}
 		var newY int
 		if minNewY < borderLimit {
 			newY = maxNewY
-		} else if maxNewY > (worldHeight - 400) - borderLimit {
+		} else if maxNewY > (worldHeight-400)-borderLimit {
 			newY = minNewY
 		} else {
-		newY = rand.Intn(maxNewY - minNewY) + minNewY
+			newY = rand.Intn(maxNewY-minNewY) + minNewY
 		}
 
 		lineXStarts = append(lineXStarts, newX)
@@ -90,13 +89,12 @@ func createMap() [][]*Tile {
 		prevx = newX
 		prevy = newY
 	}
-	fmt.Printf("startx %v", lineXStarts);
-	fmt.Printf("starty %v", lineYStarts);
+	fmt.Printf("startx %v", lineXStarts)
+	fmt.Printf("starty %v", lineYStarts)
 
 	for i := 0; i < numLines; i++ {
 		lines = append(lines, createLine(lineLengths[i], lineXStarts[i], lineYStarts[i]))
 	}
-
 
 	return lines
 }

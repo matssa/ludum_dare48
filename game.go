@@ -18,9 +18,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	_ "image/png"
-
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -109,19 +108,18 @@ func (g *Game) Update() error {
 
 	g.ominousClouds.UpdateClouds()
 
-
-	if (g.player.y16 > 1700) {
-		fmt.Printf("\n\nYou lost...\n\n");
+	if g.player.y16 > 1700 {
+		fmt.Printf("\n\nYou lost...\n\n")
 		os.Exit(0)
 	}
 
-	if (g.player.health <= 0) {
-		fmt.Printf("\n\nYou lost...\n\n");
+	if g.player.health <= 0 {
+		fmt.Printf("\n\nYou lost...\n\n")
 		os.Exit(0)
 	}
 
-	if (g.player.x16 >= g.portal.x16) {
-		fmt.Printf("\n\nYou won!\n\n");
+	if g.player.x16 >= g.portal.x16 {
+		fmt.Printf("\n\nYou won!\n\n")
 		os.Exit(0)
 	}
 
@@ -154,4 +152,3 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
-

@@ -26,24 +26,24 @@ func initBackgroundImg() {
 
 func (g *Game) drawBackground() {
 	{
-	    op := &ebiten.DrawImageOptions{}
-	    op.GeoM.Scale(2, 2)
-	    op.GeoM.Translate(g.camera.Position[0]/2, g.camera.Position[1]/2)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(2, 2)
+		op.GeoM.Translate(g.camera.Position[0]/2, g.camera.Position[1]/2)
 
-	    g.world.DrawImage(bgImage, op)
+		g.world.DrawImage(bgImage, op)
 	}
 	{
-	    op := &ebiten.DrawImageOptions{}
-	    op.GeoM.Scale(2, 2)
-	    op.GeoM.Translate((g.camera.Position[0]/2) + (640 * 2), g.camera.Position[1]/2)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(2, 2)
+		op.GeoM.Translate((g.camera.Position[0]/2)+(640*2), g.camera.Position[1]/2)
 
-	    g.world.DrawImage(bgImage, op)
+		g.world.DrawImage(bgImage, op)
 	}
 	{
-	    op := &ebiten.DrawImageOptions{}
-            op.GeoM.Scale(2, 2)
-	    op.GeoM.Translate((g.camera.Position[0]/2) + (640 * 4), g.camera.Position[1]/2)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(2, 2)
+		op.GeoM.Translate((g.camera.Position[0]/2)+(640*4), g.camera.Position[1]/2)
 
-	    g.world.DrawImage(bgImage, op)
+		g.world.DrawImage(bgImage, op)
 	}
 }

@@ -92,7 +92,7 @@ func (g *Game) createEnemies(num int) {
 
 func (e *Enemy) jump() {
 	e.vy16 = -7
-	e.safeCount = 0;
+	e.safeCount = 0
 }
 
 func (e *Enemy) moveLeft() {
@@ -117,22 +117,22 @@ func (e *Enemy) rest() {
 	e.vx16 = 0
 	e.restingCount++
 	e.isResting = true
-	e.safeCount = 0;
+	e.safeCount = 0
 }
 
 func (e *Enemy) shoot() {
 	e.vx16 = 0
 	e.isShooting = true
 	e.isResting = false
-	e.safeCount = 0;
+	e.safeCount = 0
 }
 
 func (e *Enemy) changeAction() {
 	rand.Seed(time.Now().UnixNano())
 	actionType := rand.Intn(4)
 	moveDuration := float32(0)
-	if (e.safeCount > 100) {
-		e.safeCount = 0;
+	if e.safeCount > 100 {
+		e.safeCount = 0
 	}
 	switch actionType {
 	case moveLeft:
@@ -170,23 +170,21 @@ func (e *Enemy) shouldShoot(p Player) bool {
 
 func (e *Enemy) safeToWalk() bool {
 	for _, tl := range tiles {
-		inY := tl.posy >= (e.y16) + 32 - 32 && tl.posy <= e.y16 + 32 + 16 + 32
+		inY := tl.posy >= (e.y16)+32-32 && tl.posy <= e.y16+32+16+32
 
 		var inX bool
 		if e.looksLeft {
-			inX = tl.posx >= e.x16 - 32 && tl.posx + 16 <= e.x16
+			inX = tl.posx >= e.x16-32 && tl.posx+16 <= e.x16
 		} else {
-			inX = tl.posx + 16 >= e.x16 + 32 && tl.posx <= e.x16 + 32
+			inX = tl.posx+16 >= e.x16+32 && tl.posx <= e.x16+32
 		}
 
 		if inX && inY {
-			return true;
+			return true
 		}
 	}
 	return false
 }
-
-
 
 func (g *Game) UpdateEnemies() {
 	for _, e := range g.enemies {
@@ -211,14 +209,14 @@ func (g *Game) UpdateEnemies() {
 			e.shoot()
 		} else {
 			if !e.safeToWalk() && e.safeCount < 200 {
-				e.safeCount += 1;
+				e.safeCount += 1
 				if e.looksLeft {
 					e.moveRight()
 				} else {
 					e.moveLeft()
 				}
 			} else if e.canChangeAction() {
-				e.safeCount = 0;
+				e.safeCount = 0
 				e.changeAction()
 			}
 		}
