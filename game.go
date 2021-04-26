@@ -1,10 +1,10 @@
 package main
 
 import (
-	"time"
 	"fmt"
 	_ "image/png"
 	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -28,7 +28,7 @@ const (
 
 	chipmunkSize = 32
 
-	totNumEnemies = 50
+	totNumEnemies = 30
 )
 
 var (
@@ -48,9 +48,9 @@ type Game struct {
 	ominousClouds OminousClouds
 	portal        Portal
 
-	gameOver      bool
-	playerWon     bool
-	timeToExit    time.Time
+	gameOver   bool
+	playerWon  bool
+	timeToExit time.Time
 }
 
 func init() {
@@ -113,27 +113,26 @@ func (g *Game) Update() error {
 
 	g.ominousClouds.UpdateClouds()
 
-
-	aliveEnemies := calcAliveEnemies(g.enemies);
+	aliveEnemies := calcAliveEnemies(g.enemies)
 	if aliveEnemies < totNumEnemies {
-		g.createEnemies(totNumEnemies - aliveEnemies);
+		g.createEnemies(totNumEnemies - aliveEnemies)
 	}
 
 	if !g.playerWon && !g.gameOver {
-	    if g.player.y16 > 1700 {
-		    g.gameOver = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
-	    }
+		if g.player.y16 > 1700 {
+			g.gameOver = true
+			g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
+		}
 
-	    if g.player.health <= 0 {
-		    g.gameOver = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
-	    }
+		if g.player.health <= 0 {
+			g.gameOver = true
+			g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
+		}
 
-	    if g.player.x16 >= g.portal.x16 {
-		    g.playerWon = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
-	    }
+		if g.player.x16 >= g.portal.x16 {
+			g.playerWon = true
+			g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
+		}
 	}
 
 	return nil
@@ -146,7 +145,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.player.invulnerable {
 		nanoseconds := (time.Now().UnixNano() - g.player.lastInvulnerableStart.UnixNano())
 		milliseconds := nanoseconds / 1000000
-		if (milliseconds % 100 > 50) {
+		if milliseconds%100 > 50 {
 			g.drawCharacter()
 		}
 	} else {

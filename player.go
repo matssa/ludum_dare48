@@ -1,16 +1,16 @@
 package main
 
 import (
-	"time"
 	"math"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-
 const (
 	INVULNERABLE_TIME = 2
+	JUMP_FORCE        = -6
 )
 
 type Player struct {
@@ -24,6 +24,7 @@ type Player struct {
 	hasTurned             bool
 	looksLeft             bool
 	canJump               bool
+	canDoubleJump         bool
 	isDigging             bool
 
 	invulnerable          bool
@@ -37,7 +38,7 @@ type Player struct {
 }
 
 func (p *Player) jump() {
-	p.vy16 = -7
+	p.vy16 = JUMP_FORCE
 }
 
 func (p *Player) moveLeft() {
@@ -96,7 +97,7 @@ func (p *Player) dig() {
 }
 
 func (p *Player) updatePlayer() {
-	if p.invulnerable && time.Now().Unix() - p.lastInvulnerableStart.Unix() >= INVULNERABLE_TIME {
+	if p.invulnerable && time.Now().Unix()-p.lastInvulnerableStart.Unix() >= INVULNERABLE_TIME {
 		p.invulnerable = false
 	}
 
@@ -107,13 +108,18 @@ func (p *Player) updatePlayer() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) && p.canJump {
-		p.canJump = false
+		if p.canDoubleJump {
+			p.canDoubleJump = false
+		} else {
+			p.canJump = false
+		}
 		p.isDigging = false
 		p.jump()
 	} else {
 		for _, tile := range tiles {
 			if tile.PlayerCollide(p) {
 				p.canJump = true
+				p.canDoubleJump = true
 				if ebiten.IsKeyPressed(ebiten.KeyS) {
 					p.isDigging = true
 					p.dig()
@@ -163,7 +169,7 @@ func (g *Game) isPlayerHit() bool {
 			deltaX := float64(g.player.x16 - e.x16)
 			deltaY := float64(e.y16 - g.player.y16)
 			angle = math.Atan2(deltaY, deltaX)
-			if (!g.player.invulnerable) {
+			if !g.player.invulnerable {
 				g.player.health -= 1
 				g.player.invulnerable = true
 				g.player.lastInvulnerableStart = time.Now()
