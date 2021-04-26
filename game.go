@@ -122,17 +122,17 @@ func (g *Game) Update() error {
 	if !g.playerWon && !g.gameOver {
 	    if g.player.y16 > 1700 {
 		    g.gameOver = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
 	    }
 
 	    if g.player.health <= 0 {
 		    g.gameOver = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
 	    }
 
 	    if g.player.x16 >= g.portal.x16 {
 		    g.playerWon = true
-		    g.timeToExit = time.Now().Add(time.Second * time.Duration(1))
+		    g.timeToExit = time.Now().Add(time.Second * time.Duration(5))
 	    }
 	}
 

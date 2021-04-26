@@ -31,7 +31,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
-const maxHealth = 100
+const maxHealth = 10
 
 var (
 	mplusNormalFont font.Face
@@ -53,6 +53,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mplusBigFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    24,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func createInfoString(health int, maxHealth int) string {
@@ -66,7 +74,7 @@ func DrawOverlay(screen *ebiten.Image, health int, enemies int, game *Game) {
 		myText := createInfoString(health, maxHealth)
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
-		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+		text.Draw(screen, myText, mplusNormalFont, x, y, color.Black)
 	}
 	{
 		_, height := screen.Size()
@@ -74,26 +82,26 @@ func DrawOverlay(screen *ebiten.Image, health int, enemies int, game *Game) {
 		myText := "move: wasd, attack: y, camera: v, debug: c"
 		b := text.BoundString(mplusNormalFont, myText)
 		ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
-		text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+		text.Draw(screen, myText, mplusNormalFont, x, y, color.Black)
 	}
 	{
 		width, height := screen.Size()
 		x, y := width/2, height/2
 		myText := "GAME OVER"
-		b := text.BoundString(mplusNormalFont, myText)
+		b := text.BoundString(mplusBigFont, myText)
 		if game.gameOver {
 			ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
-			text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+			text.Draw(screen, myText, mplusBigFont, x, y, color.Black)
 		}
 	}
 	{
 		width, height := screen.Size()
 		x, y := width/2, height/2
 		myText := "YOU WON"
-		b := text.BoundString(mplusNormalFont, myText)
+		b := text.BoundString(mplusBigFont, myText)
 		if game.playerWon {
 			ebitenutil.DrawRect(screen, float64(b.Min.X+x), float64(b.Min.Y+y), float64(b.Dx()), float64(b.Dy()), transparentGray)
-			text.Draw(screen, myText, mplusNormalFont, x, y, color.White)
+			text.Draw(screen, myText, mplusBigFont, x, y, color.Black)
 		}
 	}
 }
