@@ -30,7 +30,7 @@ func main() {
 		camera: Camera{ViewPort: f64.Vec2{screenWidth, screenHeight}},
 		player: Player{health: 100, count: 0, hasTurned: false, x16: 500, y16: 500},
 	}
-	g.createEnemies(20)
+	g.createEnemies(totNumEnemies) // totNumEnemies defined in game.go
 	buildWorld(g)
 
 	tileLines := createMap()

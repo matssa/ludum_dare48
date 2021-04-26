@@ -42,6 +42,8 @@ const (
 	maxVelocityY = 5
 
 	chipmunkSize = 32
+
+	totNumEnemies = 50
 )
 
 var (
@@ -66,6 +68,16 @@ func init() {
 	initAnimation()
 	initBackgroundImg()
 	initWorldImg()
+}
+
+func calcAliveEnemies(enemies []*Enemy) int {
+	numAliveEnemies := 0
+	for _, enemy := range enemies {
+		if enemy.isAlive {
+			numAliveEnemies += 1
+		}
+	}
+	return numAliveEnemies
 }
 
 func (g *Game) Update() error {
@@ -108,6 +120,12 @@ func (g *Game) Update() error {
 
 	g.ominousClouds.UpdateClouds()
 
+
+	aliveEnemies := calcAliveEnemies(g.enemies);
+	if aliveEnemies < totNumEnemies {
+		g.createEnemies(totNumEnemies - aliveEnemies);
+	}
+
 	if g.player.y16 > 1700 {
 		fmt.Printf("\n\nYou lost...\n\n")
 		os.Exit(0)
@@ -146,12 +164,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Anything relative to world must be drawn on g.world before calling
 	// Render()
 	g.camera.Render(g.world, screen)
-	numAliveEnemies := 0
-	for _, enemy := range g.enemies {
-		if enemy.isAlive {
-			numAliveEnemies += 1
-		}
-	}
+	numAliveEnemies := calcAliveEnemies(g.enemies)
 	DrawOverlay(screen, g.player.health, numAliveEnemies)
 }
 

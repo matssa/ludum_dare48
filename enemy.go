@@ -129,7 +129,17 @@ func (e *Enemy) shoot() {
 
 func (e *Enemy) changeAction() {
 	rand.Seed(time.Now().UnixNano())
-	actionType := rand.Intn(4)
+	actionFraction := rand.Intn(100);
+	var actionType int
+	if (actionFraction < 5) {
+		actionType = jump; // jump
+	} else if (actionFraction < 35) {
+		actionType = moveLeft
+	} else if (actionFraction < 65) {
+		actionType = moveRight
+	} else {
+		actionType = idle
+	}
 	moveDuration := float32(0)
 	if e.safeCount > 100 {
 		e.safeCount = 0
@@ -212,7 +222,7 @@ func (g *Game) UpdateEnemies() {
 		if e.shouldShoot(g.player) {
 			e.shoot()
 		} else {
-			if !e.safeToWalk() && e.safeCount < 200 {
+			if e.vy16 == 0 && !e.safeToWalk() && e.safeCount < 10 {
 				e.safeCount += 1
 				if e.looksLeft {
 					e.moveRight()
